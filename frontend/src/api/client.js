@@ -5,17 +5,18 @@
 import { userStore } from '../utils/userStore';
 
 export const getBaseUrl = () => {
-  const custom = localStorage.getItem('agritech_server_url');
-  if (custom && custom.trim()) {
-    const clean = custom.trim().replace(/\/+$/, '');
-    return clean.endsWith('/api') ? clean : `${clean}/api`;
-  }
+  // IGNORE LOCAL STORAGE FOR NOW TO FORCE RENDER CLOUD BACKEND
+  // const custom = localStorage.getItem('agritech_server_url');
+  // if (custom && custom.trim()) {
+  //   const clean = custom.trim().replace(/\/+$/, '');
+  //   return clean.endsWith('/api') ? clean : `${clean}/api`;
+  // }
   // Browser Vite Dev mode: use Vite proxy '/api'
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost' && window.location.port === '5173') {
     return '/api';
   }
-  // Native Android APK / Mobile network: default to local machine IP on port 8000
-  return 'http://172.31.96.243:8000/api';
+  // Native Android APK / Mobile network: default to live Render Cloud Backend
+  return 'https://agritech-sih.onrender.com/api';
 };
 
 let _isOnline = true;
