@@ -14,41 +14,44 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
       - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Gradle Build Tool
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Accept Android SDK Licenses & Install API 34
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
       - name: Install Frontend Dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Build Web Production Bundle
         working-directory: ./frontend
         run: npm run build
 
-      - name: Sync Capacitor Android Project
+      - name: Sync Capacitor Native Android Assets
         working-directory: ./frontend
         run: npx cap sync android
 
-      - name: Make Gradle Executable
+      - name: Make Gradle Wrapper Executable
         working-directory: ./frontend/android
         run: chmod +x gradlew
 
-      - name: Build Debug APK with Gradle
+      - name: Compile Native Debug APK
         working-directory: ./frontend/android
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
