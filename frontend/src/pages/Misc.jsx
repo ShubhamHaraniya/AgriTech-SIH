@@ -1223,6 +1223,8 @@ export function More() {
   });
   const [showLangModal, setShowLangModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showServerModal, setShowServerModal] = useState(false);
+  const [serverUrlInput, setServerUrlInput] = useState(() => localStorage.getItem('agritech_server_url') || 'http://172.31.96.243:8000');
   const [selectedLang, setSelectedLang] = useState('English');
   const [fields, setFields] = useState([]);
   const [profileForm, setProfileForm] = useState({
@@ -1344,6 +1346,14 @@ export function More() {
     navigate('/login');
   };
 
+  const handleSaveServerUrl = (e) => {
+    e.preventDefault();
+    const clean = serverUrlInput.trim().replace(/\/+$/, '');
+    localStorage.setItem('agritech_server_url', clean);
+    setShowServerModal(false);
+    window.location.reload();
+  };
+
   const MENU_SECTIONS = [
     {
       title: 'FARM FINANCE & AGRONOMIC SERVICES',
@@ -1358,6 +1368,7 @@ export function More() {
       title: 'PREFERENCES & ASSISTANCE',
       items: [
         { icon: '🌐', label: 'Language / भाषा', sub: `${selectedLang} · Tap to switch language`, action: () => setShowLangModal(true), grad: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', badge: selectedLang },
+        { icon: '⚙️', label: 'Backend Server Connection', sub: localStorage.getItem('agritech_server_url') || 'http://172.31.96.243:8000 · Live ML & Database', action: () => setShowServerModal(true), grad: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', badge: 'Connected' },
         { icon: '🔔', label: 'Notification Center', sub: 'Critical weather, crop & livestock alerts', path: '/notifications', grad: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' },
         { icon: '📞', label: 'Kisan Call Center & Help', sub: 'Toll-free 1800-180-1551 & agronomist helpline', action: () => setShowHelpModal(true), grad: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' },
       ]
@@ -2090,6 +2101,70 @@ export function More() {
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Backend Server Endpoint Modal ── */}
+        {showServerModal && (
+          <div className="modal-overlay" onClick={() => setShowServerModal(false)}>
+            <div className="modal-card" onClick={e => e.stopPropagation()} style={{ borderRadius: 24, maxWidth: 440 }}>
+              <div className="flex fai fjb mb16">
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>⚙️ Backend Server Link</div>
+                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                    Connect your mobile app to your laptop or cloud API
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowServerModal(false)}
+                  style={{ background: '#f1f5f9', border: 'none', borderRadius: 99, width: 32, height: 32, cursor: 'pointer', fontSize: 14 }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveServerUrl}>
+                <div className="form-group mb16">
+                  <label className="form-label bold text-xs">FastAPI Server URL</label>
+                  <input
+                    className="form-input"
+                    type="url"
+                    required
+                    value={serverUrlInput}
+                    onChange={e => setServerUrlInput(e.target.value)}
+                    placeholder="http://172.31.96.243:8000"
+                    style={{ fontSize: 13, fontFamily: 'monospace' }}
+                  />
+                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 6, lineHeight: 1.4 }}>
+                    💡 <strong>Local Wi-Fi:</strong> <code>http://172.31.96.243:8000</code><br/>
+                    ☁️ <strong>Cloud Host:</strong> <code>https://agritech-api.onrender.com</code>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    type="submit"
+                    className="btn btn-full btn-pill"
+                    style={{ background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', color: '#fff', border: 'none', fontWeight: 600, padding: '12px 20px' }}
+                  >
+                    Save & Reconnect
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => {
+                      setServerUrlInput('http://172.31.96.243:8000');
+                      localStorage.removeItem('agritech_server_url');
+                      setShowServerModal(false);
+                      window.location.reload();
+                    }}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
