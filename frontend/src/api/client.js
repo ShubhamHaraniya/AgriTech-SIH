@@ -49,9 +49,10 @@ async function request(method, path, body, isFormData = false) {
     }
     return res.json();
   } catch (e) {
+    console.error(`[API Error] ${method} ${BASE}${path}:`, e);
     if (e instanceof TypeError) {
       _isOnline = false;
-      throw new Error('Backend offline — check that the FastAPI server is running.');
+      throw new Error(`Cannot reach backend at ${BASE} (${e.message}). Ensure server is running or set URL in More tab.`);
     }
     throw e;
   }
