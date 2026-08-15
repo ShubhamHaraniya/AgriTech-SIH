@@ -133,6 +133,15 @@ img { max-width: 100%; display: block; }
     border-radius: 0;
     box-shadow: none;
   }
+  /* Ensure status bar icons (clock, battery, Wi-Fi) never overlap header text */
+  .phone > div:first-child:not(.scroll-area),
+  .topbar {
+    padding-top: max(env(safe-area-inset-top, 0px), 38px) !important;
+  }
+  .bottom-nav {
+    height: calc(64px + max(env(safe-area-inset-bottom, 0px), 10px)) !important;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px) !important;
+  }
 }
 
 /* ─── Scroll Area ────────────────────────────────────────────── */
