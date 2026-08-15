@@ -20,18 +20,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Setup Gradle Build Tool
         uses: gradle/actions/setup-gradle@v4
-
-      - name: Accept Android SDK Licenses & Install API 34
-        run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
       - name: Install Frontend Dependencies
         working-directory: ./frontend
