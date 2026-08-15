@@ -1,0 +1,197 @@
+{
+  "total_diseases": 38,
+  "combinations_per_disease": 405,
+  "total_records": 15390,
+  "diseases": {
+    "Tomato___Late_blight": {
+      "crop": "Tomato",
+      "file": "Tomato___Late_blight.json",
+      "combinations": 405
+    },
+    "Tomato___Early_blight": {
+      "crop": "Tomato",
+      "file": "Tomato___Early_blight.json",
+      "combinations": 405
+    },
+    "Tomato___Bacterial_spot": {
+      "crop": "Tomato",
+      "file": "Tomato___Bacterial_spot.json",
+      "combinations": 405
+    },
+    "Tomato___Leaf_Mold": {
+      "crop": "Tomato",
+      "file": "Tomato___Leaf_Mold.json",
+      "combinations": 405
+    },
+    "Tomato___Septoria_leaf_spot": {
+      "crop": "Tomato",
+      "file": "Tomato___Septoria_leaf_spot.json",
+      "combinations": 405
+    },
+    "Tomato___Spider_mites": {
+      "crop": "Tomato",
+      "file": "Tomato___Spider_mites.json",
+      "combinations": 405
+    },
+    "Tomato___Target_Spot": {
+      "crop": "Tomato",
+      "file": "Tomato___Target_Spot.json",
+      "combinations": 405
+    },
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+      "crop": "Tomato",
+      "file": "Tomato___Tomato_Yellow_Leaf_Curl_Virus.json",
+      "combinations": 405
+    },
+    "Tomato___Tomato_mosaic_virus": {
+      "crop": "Tomato",
+      "file": "Tomato___Tomato_mosaic_virus.json",
+      "combinations": 405
+    },
+    "Tomato___healthy": {
+      "crop": "Tomato",
+      "file": "Tomato___healthy.json",
+      "combinations": 405
+    },
+    "Apple___Apple_scab": {
+      "crop": "Apple",
+      "file": "Apple___Apple_scab.json",
+      "combinations": 405
+    },
+    "Apple___Black_rot": {
+      "crop": "Apple",
+      "file": "Apple___Black_rot.json",
+      "combinations": 405
+    },
+    "Apple___Cedar_apple_rust": {
+      "crop": "Apple",
+      "file": "Apple___Cedar_apple_rust.json",
+      "combinations": 405
+    },
+    "Apple___healthy": {
+      "crop": "Apple",
+      "file": "Apple___healthy.json",
+      "combinations": 405
+    },
+    "Corn___Cercospora_leaf_spot": {
+      "crop": "Corn",
+      "file": "Corn___Cercospora_leaf_spot.json",
+      "combinations": 405
+    },
+    "Corn___Common_rust": {
+      "crop": "Corn",
+      "file": "Corn___Common_rust.json",
+      "combinations": 405
+    },
+    "Corn___Northern_Leaf_Blight": {
+      "crop": "Corn",
+      "file": "Corn___Northern_Leaf_Blight.json",
+      "combinations": 405
+    },
+    "Corn___healthy": {
+      "crop": "Corn",
+      "file": "Corn___healthy.json",
+      "combinations": 405
+    },
+    "Grape___Black_rot": {
+      "crop": "Grape",
+      "file": "Grape___Black_rot.json",
+      "combinations": 405
+    },
+    "Grape___Esca": {
+      "crop": "Grape",
+      "file": "Grape___Esca.json",
+      "combinations": 405
+    },
+    "Grape___Leaf_blight": {
+      "crop": "Grape",
+      "file": "Grape___Leaf_blight.json",
+      "combinations": 405
+    },
+    "Grape___healthy": {
+      "crop": "Grape",
+      "file": "Grape___healthy.json",
+      "combinations": 405
+    },
+    "Potato___Early_blight": {
+      "crop": "Potato",
+      "file": "Potato___Early_blight.json",
+      "combinations": 405
+    },
+    "Potato___Late_blight": {
+      "crop": "Potato",
+      "file": "Potato___Late_blight.json",
+      "combinations": 405
+    },
+    "Potato___healthy": {
+      "crop": "Potato",
+      "file": "Potato___healthy.json",
+      "combinations": 405
+    },
+    "Pepper___Bacterial_spot": {
+      "crop": "Pepper",
+      "file": "Pepper___Bacterial_spot.json",
+      "combinations": 405
+    },
+    "Pepper___healthy": {
+      "crop": "Pepper",
+      "file": "Pepper___healthy.json",
+      "combinations": 405
+    },
+    "Strawberry___Leaf_scorch": {
+      "crop": "Strawberry",
+      "file": "Strawberry___Leaf_scorch.json",
+      "combinations": 405
+    },
+    "Strawberry___healthy": {
+      "crop": "Strawberry",
+      "file": "Strawberry___healthy.json",
+      "combinations": 405
+    },
+    "Peach___Bacterial_spot": {
+      "crop": "Peach",
+      "file": "Peach___Bacterial_spot.json",
+      "combinations": 405
+    },
+    "Peach___healthy": {
+      "crop": "Peach",
+      "file": "Peach___healthy.json",
+      "combinations": 405
+    },
+    "Cherry___Powdery_mildew": {
+      "crop": "Cherry",
+      "file": "Cherry___Powdery_mildew.json",
+      "combinations": 405
+    },
+    "Cherry___healthy": {
+      "crop": "Cherry",
+      "file": "Cherry___healthy.json",
+      "combinations": 405
+    },
+    "Raspberry___healthy": {
+      "crop": "Raspberry",
+      "file": "Raspberry___healthy.json",
+      "combinations": 405
+    },
+    "Soybean___healthy": {
+      "crop": "Soybean",
+      "file": "Soybean___healthy.json",
+      "combinations": 405
+    },
+    "Squash___Powdery_mildew": {
+      "crop": "Squash",
+      "file": "Squash___Powdery_mildew.json",
+      "combinations": 405
+    },
+    "Blueberry___healthy": {
+      "crop": "Blueberry",
+      "file": "Blueberry___healthy.json",
+      "combinations": 405
+    },
+    "Orange___Haunglongbing": {
+      "crop": "Orange",
+      "file": "Orange___Haunglongbing.json",
+      "combinations": 405
+    }
+  }
+}

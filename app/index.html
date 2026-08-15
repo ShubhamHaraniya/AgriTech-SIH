@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="description" content="AgriTech – AI-powered smart farming platform for marginal farmers. Offline-first crop recommendations, livestock health, disease scanning and farm management."/>
+<title>AgriTech – Smart Farming Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   DESIGN TOKENS — extracted from reference images
+   ============================================================ */
+:root {
+  --green-900: #0D2E1C;
+  --green-800: #1B4332;
+  --green-700: #2D6A4F;
+  --green-600: #40916C;
+  --green-500: #52B788;
+  --green-400: #74C69D;
+  --green-300: #95D5B2;
+  --green-200: #B7E4C7;
+  --green-100: #D8F3DC;
+  --green-50:  #EEF8F2;
+  --cream:     #F8F5EE;
+  --cream-dark:#F0EDE4;
+  --white:     #FFFFFF;
+  --char-900:  #1C1C1E;
+  --char-700:  #3A3A3A;
+  --char-500:  #6B6B6B;
+  --char-300:  #A8A8A8;
+  --char-100:  #E5E5E5;
+  --amber:     #F4A261;
+  --amber-dark:#E76F51;
+  --red:       #E63946;
+  --red-light: #FDECEA;
+  --blue:      #2196F3;
+  --font:      'DM Sans', -apple-system, sans-serif;
+  --radius-sm: 10px;
+  --radius:    16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --shadow-sm: 0 2px 8px rgba(27,67,50,0.08);
+  --shadow:    0 4px 20px rgba(27,67,50,0.12);
+  --shadow-lg: 0 8px 32px rgba(27,67,50,0.16);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000}
+body{font-family:var(--font);color:var(--char-900);-webkit-font-smoothing:antialiased}
+button{font-family:var(--font);cursor:pointer;border:none;outline:none;background:none}
+input,select,textarea{font-family:var(--font);outline:none;border:none;background:none}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+
+/* ============================================================
+   PHONE SHELL + SCREEN CONTAINER
+   ============================================================ */
+#app{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0D2E1C 0%,#1B4332 50%,#2D6A4F 100%);
+}
+#phone{
+  position:relative;
+  width:390px;height:844px;
+  background:var(--cream);
+  border-radius:44px;
+  overflow:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,0.6),inset 0 0 0 1px rgba(255,255,255,0.15);
+}
+/* Responsive: fill screen on small displays */
+@media(max-height:900px),(max-width:430px){
+  #phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
+  #app{background:var(--cream)}
+}
+
+/* Screen layers */
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  background:var(--cream);
+  overflow:hidden;
+  opacity:0;pointer-events:none;transform:translateX(30px);
+  transition:opacity .28s ease, transform .28s ease;
+}
+.screen.active{opacity:1;pointer-events:all;transform:none}
+.screen.slide-left{transform:translateX(-30px)}
+
+/* Scrollable content area */
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.scroll-area::-webkit-scrollbar{width:3px}
+.scroll-area::-webkit-scrollbar-thumb{background:var(--green-200);border-radius:99px}
+
+/* ============================================================
+   BOTTOM NAV
+   ============================================================ */
+.bottom-nav{
+  flex-shrink:0;
+  display:flex;align-items:center;
+  background:var(--white);
+  border-top:1px solid var(--char-100);
+  padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+  box-shadow:0 -4px 20px rgba(27,67,50,0.08);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:4px 0;cursor:pointer;
+  color:var(--char-300);font-size:10px;font-weight:500;
+  transition:color .2s;
+}
+.nav-item.active,.nav-item:hover{color:var(--green-700)}
+.nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.nav-item.center-btn{margin-top:-20px}
+.nav-center-circle{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green-700),var(--green-500));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(27,67,50,0.35);
+  color:#fff;font-size:24px;
+}
+
+/* ============================================================
+   TOP BARS
+   ============================================================ */
+.topbar{
+  flex-shrink:0;
+  display:flex;align-items:center;
+  padding:12px 20px;
+  background:var(--white);
+  border-bottom:1px solid rgba(27,67,50,0.06);
+  gap:12px;
+}
+.topbar-title{flex:1;font-size:17px;font-weight:700;color:var(--char-900)}
+.back-btn{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--cream);cursor:pointer;
+  font-size:18px;color:var(--green-800);
+  border:1px solid var(--char-100);
+  flex-shrink:0;
+}
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--cream);cursor:pointer;font-size:16px;
+  border:1px solid var(--char-100);
+  flex-shrink:0;
+}
+
+/* ============================================================
+   COMMON COMPONENTS
+   ============================================================ */
+/* Cards */
+.card{
+  background:var(--white);border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow-sm);
+}
+.card-green{
+  background:linear-gradient(135deg,var(--green-700),var(--green-600));
+  border-radius:var(--radius);padding:16px;color:#fff;
+}
+
+/* Buttons */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 24px;border-radius:var(--radius);
+  font-size:15px;font-weight:600;cursor:pointer;
+  transition:transform .15s,box-shadow .15s,opacity .15s;
+  letter-spacing:-0.1px;
+}
+.btn:active{transform:scale(0.97);opacity:0.9}
+.btn-primary{
+  background:linear-gradient(135deg,var(--green-800),var(--green-600));
+  color:#fff;box-shadow:0 4px 16px rgba(27,67,50,0.3);
+}
+.btn-secondary{
+  background:var(--green-50);color:var(--green-800);
+  border:1.5px solid var(--green-200);
+}
+.btn-outline{background:transparent;color:var(--green-700);border:1.5px solid var(--green-300)}
+.btn-ghost{background:transparent;color:var(--char-500);font-weight:500}
+.btn-red{background:var(--red);color:#fff;box-shadow:0 4px 16px rgba(230,57,70,0.3)}
+.btn-full{width:100%}
+
+/* Badges */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:99px;
+  font-size:11px;font-weight:600;
+}
+.badge-green{background:var(--green-100);color:var(--green-800)}
+.badge-amber{background:#FEF3E2;color:#B45309}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-gray{background:var(--char-100);color:var(--char-500)}
+.badge-blue{background:#E3F2FD;color:#1565C0}
+
+/* Tags */
+.tag{
+  display:inline-flex;align-items:center;padding:4px 12px;
+  border-radius:99px;font-size:12px;font-weight:500;
+}
+.tag-green{background:var(--green-50);color:var(--green-700);border:1px solid var(--green-200)}
+.tag-amber{background:#FEF3E2;color:#92400E;border:1px solid #FDE68A}
+
+/* Form elements */
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.form-label{font-size:13px;font-weight:600;color:var(--char-700)}
+.form-input{
+  padding:12px 16px;border-radius:var(--radius-sm);
+  background:var(--cream);border:1.5px solid var(--char-100);
+  font-size:15px;color:var(--char-900);font-family:var(--font);
+  transition:border-color .2s;
+}
+.form-input:focus{border-color:var(--green-500);background:var(--white)}
+.form-select{
+  padding:12px 16px;border-radius:var(--radius-sm);
+  background:var(--cream);border:1.5px solid var(--char-100);
+  font-size:15px;color:var(--char-900);font-family:var(--font);
+  width:100%;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6B6B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
+  cursor:pointer;
+}
+
+/* Progress bars */
+.progress-bar{height:8px;background:var(--char-100);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green-600),var(--green-400));transition:width .5s ease}
+.progress-fill.amber{background:linear-gradient(90deg,var(--amber-dark),var(--amber))}
+.progress-fill.red{background:linear-gradient(90deg,var(--red),#ff6b6b)}
+
+/* Divider */
+.divider{height:1px;background:var(--char-100);margin:12px 0}
+.section-divider{height:8px;background:var(--cream-dark);margin:0 -20px}
+
+/* Section title */
+.section-label{font-size:11px;font-weight:700;color:var(--char-300);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px}
+
+/* Status dot */
+.dot-green{width:8px;height:8px;border-radius:50%;background:var(--green-500);flex-shrink:0}
+.dot-amber{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0}
+.dot-red{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+
+/* Chip group */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  padding:8px 14px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;
+  background:var(--cream);border:1.5px solid var(--char-100);color:var(--char-700);
+  transition:all .2s;
+}
+.chip.selected{background:var(--green-100);border-color:var(--green-400);color:var(--green-800)}
+
+/* Animal icon box */
+.animal-icon{
+  width:44px;height:44px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.animal-cow{background:#FEF3E2}
+.animal-buffalo{background:#E3F2FD}
+.animal-sheep{background:var(--green-50)}
+.animal-goat{background:#F3E8FF}
+
+/* Weather icon */
+.weather-icon{font-size:40px;line-height:1}
+
+/* Confidence ring */
+.conf-ring{position:relative;width:80px;height:80px;flex-shrink:0}
+.conf-ring svg{transform:rotate(-90deg)}
+.conf-ring-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--green-800)}
+.conf-ring-label{font-size:8px;font-weight:600;color:var(--char-500);margin-top:1px}
+
+/* Step indicator */
+.steps{display:flex;align-items:center;gap:6px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--char-100);transition:all .3s}
+.step-dot.active{width:24px;border-radius:99px;background:var(--green-600)}
+.step-dot.done{background:var(--green-400)}
+
+/* Row item (list) */
+.row-item{display:flex;align-items:center;gap:12px;padding:12px 0}
+.row-item + .row-item{border-top:1px solid var(--char-100)}
+.row-main{flex:1;min-width:0}
+.row-title{font-size:15px;font-weight:600;color:var(--char-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-sub{font-size:12px;color:var(--char-500);margin-top:2px}
+.row-right{flex-shrink:0;text-align:right}
+.chevron{color:var(--char-300);font-size:14px}
+
+/* Alert / notice boxes */
+.alert-box{border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
+.alert-red{background:var(--red-light);border-left:3px solid var(--red)}
+.alert-amber{background:#FEF3E2;border-left:3px solid var(--amber)}
+.alert-green{background:var(--green-50);border-left:3px solid var(--green-500)}
+.alert-blue{background:#E3F2FD;border-left:3px solid #2196F3}
+
+/* Floating leaf decoration (top corners) */
+.leaf-corner-tl{
+  position:absolute;top:-10px;left:-10px;
+  font-size:80px;opacity:0.12;pointer-events:none;transform:rotate(-20deg);
+  filter:blur(1px);
+}
+.leaf-corner-tr{
+  position:absolute;top:-10px;right:-10px;
+  font-size:80px;opacity:0.10;pointer-events:none;transform:rotate(30deg);
+  filter:blur(1px);
+}
+
+/* Quick action grid */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick-btn{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:16px 12px;border-radius:var(--radius);cursor:pointer;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  border:1px solid var(--char-100);transition:transform .15s,box-shadow .15s;
+}
+.quick-btn:active{transform:scale(0.97);box-shadow:none}
+.quick-btn-icon{width:44px;height:44px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px}
+.quick-btn-label{font-size:13px;font-weight:600;color:var(--char-700);text-align:center}
+
+/* Timeline */
+.timeline-item{display:flex;gap:12px;padding-bottom:20px;position:relative}
+.timeline-item::before{content:'';position:absolute;left:17px;top:34px;bottom:0;width:2px;background:var(--char-100)}
+.timeline-item:last-child::before{display:none}
+.timeline-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:var(--shadow-sm)}
+.timeline-content{flex:1;padding-top:6px}
+.timeline-title{font-size:14px;font-weight:600;color:var(--char-900)}
+.timeline-date{font-size:12px;color:var(--char-500);margin-top:2px}
+.timeline-detail{font-size:13px;color:var(--char-700);margin-top:4px}
+
+/* Category header */
+.cat-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.cat-title{font-size:16px;font-weight:700;color:var(--char-900)}
+.cat-link{font-size:13px;font-weight:600;color:var(--green-700)}
+
+/* ============================================================
+   SCREEN 1: SPLASH
+   ============================================================ */
+#screen-splash{background:#fff;justify-content:stretch}
+#screen-splash img.splash-bg{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+}
+.splash-loader{
+  position:absolute;bottom:48px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;align-items:center;
+}
+.loader-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(27,67,50,0.4);
+  animation:loaderPulse 1.2s ease-in-out infinite;
+}
+.loader-dot:nth-child(2){animation-delay:.2s}
+.loader-dot:nth-child(3){animation-delay:.4s}
+@keyframes loaderPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+
+/* ============================================================
+   SCREEN 2-5: ONBOARDING
+   ============================================================ */
+.onboard-screen{justify-content:stretch;background:var(--cream)}
+.onboard-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:top;
+}
+.onboard-controls{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:28px 24px calc(28px + env(safe-area-inset-bottom));
+  background:linear-gradient(to top,rgba(248,245,238,1) 70%,rgba(248,245,238,0));
+}
+.onboard-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.onboard-dot{width:6px;height:6px;border-radius:50%;background:var(--char-200);transition:all .3s}
+.onboard-dot.active{width:20px;border-radius:99px;background:var(--green-700)}
+.onboard-nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
+
+/* ============================================================
+   SCREEN 6-9: SETUP / PROFILE
+   ============================================================ */
+.setup-header{
+  padding:20px 20px 0;
+  background:linear-gradient(to bottom,var(--green-800),var(--green-700));
+  padding-bottom:24px;
+}
+.setup-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.setup-logo{display:flex;align-items:center;gap:8px;color:#fff}
+.setup-logo-icon{font-size:24px}
+.setup-logo-text{font-size:18px;font-weight:800;letter-spacing:-0.5px}
+.setup-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px}
+.setup-sub{font-size:14px;color:rgba(255,255,255,0.75);margin-bottom:16px}
+.setup-body{flex:1;overflow-y:auto;padding:20px}
+.step-bar{display:flex;gap:4px}
+.step-seg{height:4px;flex:1;border-radius:99px;background:rgba(255,255,255,0.3);transition:background .4s}
+.step-seg.done{background:#fff}
+.step-seg.active{background:var(--green-300)}
+
+/* ============================================================
+   SCREEN 10: HOME DASHBOARD
+   ============================================================ */
+.home-header{
+  padding:16px 20px 0;
+  background:linear-gradient(160deg,var(--green-800) 0%,var(--green-700) 100%);
+  flex-shrink:0;
+}
+.home-header-top{display:flex;align-items:flex-start;justify-content:space-between;color:#fff;margin-bottom:16px}
+.home-greeting{font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:2px}
+.home-name{font-size:22px;font-weight:800;color:#fff}
+.home-location{font-size:12px;color:rgba(255,255,255,0.65);margin-top:2px}
+.home-notif-btn{
+  width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;position:relative;
+}
+.notif-badge{
+  position:absolute;top:6px;right:6px;
+  width:8px;height:8px;border-radius:50%;background:var(--red);
+  border:2px solid var(--green-800);
+}
+
+/* Weather card in header */
+.weather-card-home{
+  background:rgba(255,255,255,0.12);
+  border-radius:var(--radius);padding:14px 16px;
+  display:flex;align-items:center;gap:16px;
+  border:1px solid rgba(255,255,255,0.15);
+  margin-bottom:16px;backdrop-filter:blur(10px);
+}
+.weather-temp{font-size:36px;font-weight:300;color:#fff;line-height:1}
+.weather-desc{font-size:14px;color:rgba(255,255,255,0.85);font-weight:500}
+.weather-detail{font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px}
+.weather-details-row{display:flex;gap:16px;margin-top:8px}
+.weather-stat{display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(255,255,255,0.75)}
+
+/* Home content tabs */
+.home-content{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px}
+
+/* Action card */
+.action-card{
+  border-radius:var(--radius-sm);padding:12px 14px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:opacity .15s;
+}
+.action-card:active{opacity:0.85}
+.action-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.action-info{flex:1;min-width:0}
+.action-title{font-size:14px;font-weight:600;color:var(--char-900)}
+.action-sub{font-size:12px;color:var(--char-500);margin-top:1px}
+.action-badge{flex-shrink:0}
+
+/* Farm health row */
+.farm-health-row{display:flex;gap:8px}
+.health-tile{
+  flex:1;padding:12px;border-radius:var(--radius-sm);
+  background:var(--white);box-shadow:var(--shadow-sm);
+  border:1px solid var(--char-100);text-align:center;
+}
+.health-tile-val{font-size:20px;font-weight:800;color:var(--green-800)}
+.health-tile-label{font-size:10px;color:var(--char-500);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px}
+.health-tile-sub{font-size:11px;color:var(--char-700);margin-top:4px}
+
+/* ============================================================
+   SCREEN 11: CROP RECOMMENDATION
+   ============================================================ */
+.crop-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow-sm);margin-bottom:12px;
+  display:flex;align-items:center;gap:14px;cursor:pointer;
+  border:1.5px solid var(--char-100);transition:border-color .2s;
+}
+.crop-card:hover{border-color:var(--green-300)}
+.crop-rank{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.rank-1{background:linear-gradient(135deg,#D4AF37,#FFC857)}
+.rank-2{background:linear-gradient(135deg,#A0A0A0,#C0C0C0)}
+.rank-3{background:linear-gradient(135deg,#CD7F32,#E8A97C)}
+.crop-img{width:56px;height:56px;border-radius:var(--radius-sm);object-fit:cover;background:var(--green-50);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0}
+.crop-info{flex:1}
+.crop-name{font-size:16px;font-weight:700;color:var(--char-900)}
+.crop-match{font-size:12px;color:var(--char-500);margin-top:2px}
+.crop-score{text-align:right;flex-shrink:0}
+.score-val{font-size:22px;font-weight:800;color:var(--green-700)}
+.score-lbl{font-size:10px;color:var(--char-500);font-weight:500}
+
+/* Condition chip bar */
+.cond-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.cond-chip{
+  padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;
+  background:var(--green-50);color:var(--green-800);border:1px solid var(--green-200);
+}
+
+/* ============================================================
+   SCREEN 12: FIELD/CROP DETAILS
+   ============================================================ */
+.field-hero{
+  background:linear-gradient(160deg,var(--green-800),var(--green-600));
+  padding:20px;padding-top:60px;
+}
+.field-hero-crop{font-size:28px;font-weight:800;color:#fff}
+.field-hero-meta{font-size:13px;color:rgba(255,255,255,0.75);margin-top:4px}
+.stage-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow-sm);margin-top:-20px;
+}
+.stage-name{font-size:14px;font-weight:700;color:var(--green-800)}
+.stage-das{font-size:12px;color:var(--char-500);margin-top:2px}
+
+/* Activity item */
+.activity-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--char-100);
+}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.activity-info{flex:1}
+.activity-title{font-size:14px;font-weight:600;color:var(--char-900)}
+.activity-when{font-size:12px;color:var(--char-500);margin-top:2px}
+
+/* ============================================================
+   SCREEN 13: CROP ACTIVITY CALENDAR
+   ============================================================ */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-month{font-size:16px;font-weight:700;color:var(--char-900)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-day-name{font-size:10px;font-weight:700;color:var(--char-300);padding:4px 0;text-transform:uppercase}
+.cal-day{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;font-size:13px;font-weight:500;color:var(--char-700);cursor:pointer;
+  transition:background .15s;position:relative;
+}
+.cal-day:hover{background:var(--green-50)}
+.cal-day.today{background:var(--green-700);color:#fff;font-weight:700}
+.cal-day.has-event::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--amber)}
+.cal-day.today.has-event::after{background:#fff}
+.cal-day.other-month{color:var(--char-200)}
+
+/* ============================================================
+   SCREEN 14: WEATHER ADVISORY
+   ============================================================ */
+.weather-hero{
+  background:linear-gradient(160deg,#1a3a6b 0%,#2d6a9f 60%,var(--green-700) 100%);
+  padding:24px 20px 32px;
+}
+.weather-main-temp{font-size:64px;font-weight:200;color:#fff;line-height:1}
+.weather-main-icon{font-size:64px;line-height:1}
+.weather-forecast-row{display:flex;gap:8px}
+.forecast-day{
+  flex:1;background:rgba(255,255,255,0.12);border-radius:var(--radius-sm);
+  padding:10px 6px;text-align:center;color:#fff;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.forecast-day-name{font-size:10px;font-weight:700;text-transform:uppercase;opacity:.7}
+.forecast-icon{font-size:20px;margin:6px 0}
+.forecast-temp{font-size:11px;font-weight:600;opacity:.85}
+
+/* ============================================================
+   SCREEN 15: CROP DISEASE SCANNER
+   ============================================================ */
+.scanner-viewfinder{
+  flex:1;background:#000;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;position:relative;overflow:hidden;
+}
+.viewfinder-box{
+  width:280px;height:280px;border-radius:var(--radius-xl);position:relative;
+  background:rgba(255,255,255,0.05);
+}
+.vf-corner{position:absolute;width:28px;height:28px}
+.vf-tl{top:0;left:0;border-top:3px solid #fff;border-left:3px solid #fff;border-radius:var(--radius-sm) 0 0 0}
+.vf-tr{top:0;right:0;border-top:3px solid #fff;border-right:3px solid #fff;border-radius:0 var(--radius-sm) 0 0}
+.vf-bl{bottom:0;left:0;border-bottom:3px solid #fff;border-left:3px solid #fff;border-radius:0 0 0 var(--radius-sm)}
+.vf-br{bottom:0;right:0;border-bottom:3px solid #fff;border-right:3px solid #fff;border-radius:0 0 var(--radius-sm) 0}
+.scanner-scan-line{
+  position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(82,183,136,0.8),transparent);
+  animation:scanLine 2s ease-in-out infinite;
+}
+@keyframes scanLine{0%{top:0}50%{top:100%}100%{top:0}}
+.scanner-hint{font-size:13px;color:rgba(255,255,255,0.7);margin-top:20px;text-align:center;padding:0 32px}
+.scanner-controls{
+  padding:20px;background:var(--white);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.shutter-btn{
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green-700),var(--green-500));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(27,67,50,0.4);font-size:28px;color:#fff;cursor:pointer;
+  transition:transform .15s;
+}
+.shutter-btn:active{transform:scale(0.93)}
+.camera-alt-btn{
+  width:48px;height:48px;border-radius:50%;
+  background:var(--cream);border:1.5px solid var(--char-100);
+  display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;
+}
+
+/* ============================================================
+   SCREEN 16: DISEASE RESULT
+   ============================================================ */
+.disease-leaf-img{
+  width:100%;height:220px;object-fit:cover;
+  background:linear-gradient(135deg,var(--green-800),var(--green-600));
+  display:flex;align-items:center;justify-content:center;font-size:80px;
+  flex-shrink:0;position:relative;
+}
+.result-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.severity-bar-wrap{margin-top:8px}
+.severity-label{display:flex;justify-content:space-between;margin-bottom:6px}
+.severity-label span{font-size:12px;font-weight:600}
+
+/* ============================================================
+   SCREEN 18: LIVESTOCK DASHBOARD
+   ============================================================ */
+.livestock-header{
+  padding:20px;
+  background:linear-gradient(160deg,var(--green-800),var(--green-700));
+}
+.livestock-summary-row{display:flex;gap:8px;margin-top:14px}
+.ls-stat{
+  flex:1;background:rgba(255,255,255,0.12);border-radius:var(--radius-sm);
+  padding:12px 10px;text-align:center;color:#fff;border:1px solid rgba(255,255,255,0.1);
+}
+.ls-stat-val{font-size:22px;font-weight:800}
+.ls-stat-lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* Animal row */
+.animal-row{
+  display:flex;align-items:center;gap:12px;
+  padding:14px;background:var(--white);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);margin-bottom:8px;cursor:pointer;
+  transition:transform .15s;
+}
+.animal-row:active{transform:scale(0.99)}
+.animal-avatar{width:50px;height:50px;border-radius:var(--radius-sm);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+
+/* ============================================================
+   SCREEN 19: ANIMAL PROFILE
+   ============================================================ */
+.animal-profile-hero{
+  padding:24px 20px 20px;
+  background:linear-gradient(160deg,var(--green-800),var(--green-600));
+  display:flex;align-items:center;gap:16px;
+}
+.animal-profile-avatar{width:80px;height:80px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:44px;background:rgba(255,255,255,0.15);flex-shrink:0}
+.animal-profile-name{font-size:22px;font-weight:800;color:#fff}
+.animal-profile-type{font-size:13px;color:rgba(255,255,255,0.75);margin-top:4px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-tile{padding:12px;background:var(--white);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm)}
+.info-tile-label{font-size:11px;font-weight:700;color:var(--char-300);text-transform:uppercase;letter-spacing:.5px}
+.info-tile-val{font-size:16px;font-weight:700;color:var(--char-900);margin-top:4px}
+
+/* ============================================================
+   SCREEN 20: HEALTH ASSESSMENT
+   ============================================================ */
+.symptom-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.symptom-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;
+  background:var(--cream);border:1.5px solid var(--char-100);
+  font-size:13px;font-weight:500;color:var(--char-700);
+  transition:all .2s;
+}
+.symptom-chip.selected{background:var(--green-50);border-color:var(--green-400);color:var(--green-900)}
+.symptom-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--char-200);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:10px}
+.symptom-chip.selected .symptom-check{background:var(--green-600);border-color:var(--green-600);color:#fff}
+
+/* ============================================================
+   SCREEN 21: ML RESULT
+   ============================================================ */
+.result-ring-wrap{
+  background:var(--white);border-radius:var(--radius);padding:24px;
+  box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:20px;
+}
+.risk-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:99px;font-size:14px;font-weight:700;
+}
+.risk-high{background:var(--red-light);color:var(--red)}
+.risk-medium{background:#FEF3E2;color:#92400E}
+.risk-low{background:var(--green-50);color:var(--green-800)}
+
+/* ============================================================
+   SCREEN 23: VACCINATION TRACKER
+   ============================================================ */
+.tabs{display:flex;background:var(--cream);border-radius:var(--radius-sm);padding:4px;margin-bottom:16px}
+.tab{
+  flex:1;text-align:center;padding:8px;border-radius:8px;
+  font-size:13px;font-weight:600;color:var(--char-500);cursor:pointer;transition:all .2s;
+}
+.tab.active{background:var(--white);color:var(--green-800);box-shadow:var(--shadow-sm)}
+.vacc-item{
+  background:var(--white);border-radius:var(--radius);
+  padding:14px;box-shadow:var(--shadow-sm);margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;
+  border-left:4px solid transparent;
+}
+.vacc-overdue{border-left-color:var(--red)}
+.vacc-due-soon{border-left-color:var(--amber)}
+.vacc-done{border-left-color:var(--green-500)}
+
+/* ============================================================
+   SCREEN 25: EXPENSE TRACKER
+   ============================================================ */
+.expense-chart-bar{
+  height:120px;display:flex;align-items:flex-end;gap:8px;padding:0 4px;
+}
+.chart-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.chart-fill{
+  width:100%;border-radius:6px 6px 0 0;
+  background:linear-gradient(to top,var(--green-700),var(--green-400));
+  transition:height .5s ease;min-height:4px;
+}
+.chart-label{font-size:10px;color:var(--char-500);font-weight:600}
+.expense-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--char-100)}
+.expense-item:last-child{border-bottom:none}
+.expense-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.expense-name{flex:1;font-size:14px;font-weight:500;color:var(--char-900)}
+.expense-pct{font-size:12px;color:var(--char-500)}
+.expense-amount{font-size:14px;font-weight:700;color:var(--char-900)}
+
+/* ============================================================
+   SCREEN 26: NOTIFICATIONS
+   ============================================================ */
+.notif-item{
+  background:var(--white);border-radius:var(--radius);
+  padding:14px;box-shadow:var(--shadow-sm);margin-bottom:8px;
+  display:flex;gap:12px;cursor:pointer;
+  border-left:4px solid transparent;transition:opacity .15s;
+}
+.notif-item:active{opacity:.85}
+.notif-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.notif-title{font-size:14px;font-weight:700;color:var(--char-900)}
+.notif-desc{font-size:13px;color:var(--char-700);margin-top:2px;line-height:1.4}
+.notif-time{font-size:11px;color:var(--char-300);margin-top:4px}
+.notif-urgent{border-left-color:var(--red)}
+.notif-action{border-left-color:var(--amber)}
+.notif-info{border-left-color:var(--green-400)}
+
+/* ============================================================
+   SCREEN 27: MORE / PROFILE
+   ============================================================ */
+.profile-header{
+  padding:24px 20px;
+  background:linear-gradient(160deg,var(--green-800),var(--green-700));
+  display:flex;align-items:center;gap:16px;
+}
+.profile-avatar{
+  width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.profile-name{font-size:20px;font-weight:800;color:#fff}
+.profile-meta{font-size:13px;color:rgba(255,255,255,0.7);margin-top:2px}
+.menu-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;cursor:pointer;transition:background .15s;
+  background:var(--white);
+}
+.menu-item:hover{background:var(--cream)}
+.menu-item + .menu-item{border-top:1px solid var(--char-100)}
+.menu-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.menu-label{flex:1;font-size:15px;font-weight:500;color:var(--char-900)}
+.menu-right{font-size:14px;color:var(--char-300)}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+.p16{padding:16px}
+.p20{padding:20px}
+.px20{padding-left:20px;padding-right:20px}
+.py12{padding-top:12px;padding-bottom:12px}
+.mt4{margin-top:4px}.mt6{margin-top:6px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}
+.flex{display:flex}.fai{align-items:center}.fjb{justify-content:space-between}.g8{gap:8px}.g12{gap:12px}
+.f1{flex:1}.bold{font-weight:700}.semi{font-weight:600}
+.text-sm{font-size:12px}.text-xs{font-size:11px}.text-base{font-size:14px}.text-lg{font-size:16px}.text-xl{font-size:18px}
+.text-green{color:var(--green-700)}.text-muted{color:var(--char-500)}.text-dark{color:var(--char-900)}.text-red{color:var(--red)}.text-amber{color:var(--amber-dark)}
+.text-center{text-align:center}.text-right{text-align:right}
+.w100{width:100%}
+.hidden{display:none!important}
+.round{border-radius:99px}
+.green-bg{background:var(--green-50)}
+.white-bg{background:var(--white)}
+
+/* Animate in */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.animate-in{animation:fadeUp .4s ease forwards}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="phone">
+
+<!-- ============================================================
+     SCREEN 1: SPLASH
+     ============================================================ -->
+<div id="screen-splash" class="screen active">
+  <img class="splash-bg" src="../Photos/SPLASH.png" alt="AgriTech Smart Farming Platform"/>
+  <div class="splash-loader">
+    <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2: ONBOARDING 1
+     ============================================================ -->
+<div id="screen-onboard1" class="screen onboard-screen">
+  <img class="onboard-img" src="../Photos/ONBOARDING_1.png" alt="Farm Intelligence"/>
+  <div class="onboard-controls">
+    <div class="onboard-dots">
+      <div class="onboard-dot active"></div><div class="onboard-dot"></div>
+      <div class="onboard-dot"></div><div class="onboard-dot"></div>
+    </div>
+    <div class="onboard-nav">
+      <button class="btn btn-ghost" onclick="goTo('screen-home')">Skip</button>
+      <button class="btn btn-primary" style="min-width:140px" onclick="goTo('screen-onboard2')">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 3: ONBOARDING 2
+     ============================================================ -->
+<div id="screen-onboard2" class="screen onboard-screen">
+  <img class="onboard-img" src="../Photos/ONBOARDING_2.png" alt="AI Assistance"/>
+  <div class="onboard-controls">
+    <div class="onboard-dots">
+      <div class="onboard-dot done"></div><div class="onboard-dot active"></div>
+      <div class="onboard-dot"></div><div class="onboard-dot"></div>
+    </div>
+    <div class="onboard-nav">
+      <button class="btn btn-ghost" onclick="goTo('screen-home')">Skip</button>
+      <button class="btn btn-primary" style="min-width:140px" onclick="goTo('screen-onboard3')">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 4: ONBOARDING 3
+     ============================================================ -->
+<div id="screen-onboard3" class="screen onboard-screen">
+  <img class="onboard-img" src="../Photos/ONBOARDING_3.png" alt="Livestock Care"/>
+  <div class="onboard-controls">
+    <div class="onboard-dots">
+      <div class="onboard-dot done"></div><div class="onboard-dot done"></div>
+      <div class="onboard-dot active"></div><div class="onboard-dot"></div>
+    </div>
+    <div class="onboard-nav">
+      <button class="btn btn-ghost" onclick="goTo('screen-home')">Skip</button>
+      <button class="btn btn-primary" style="min-width:140px" onclick="goTo('screen-onboard4')">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 5: ONBOARDING 4
+     ============================================================ -->
+<div id="screen-onboard4" class="screen onboard-screen">
+  <img class="onboard-img" src="../Photos/ONBOARDING_4.png" alt="Sustainable Growth"/>
+  <div class="onboard-controls">
+    <div class="onboard-dots">
+      <div class="onboard-dot done"></div><div class="onboard-dot done"></div>
+      <div class="onboard-dot done"></div><div class="onboard-dot active"></div>
+    </div>
+    <div class="onboard-nav">
+      <button class="btn btn-ghost" onclick="goTo('screen-home')">Demo</button>
+      <button class="btn btn-primary" style="min-width:140px" onclick="goTo('screen-setup-farmer')">Get Started</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 6: SETUP – FARMER INFO
+     ============================================================ -->
+<div id="screen-setup-farmer" class="screen">
+  <div class="setup-header">
+    <div class="setup-header-top">
+      <div class="setup-logo"><span class="setup-logo-icon">🌿</span><span class="setup-logo-text">AgriTech</span></div>
+      <button class="btn btn-ghost" style="color:rgba(255,255,255,0.7);font-size:13px" onclick="goTo('screen-home')">Skip Setup</button>
+    </div>
+    <div class="step-bar">
+      <div class="step-seg active"></div><div class="step-seg"></div><div class="step-seg"></div><div class="step-seg"></div>
+    </div>
+    <div style="height:8px"></div>
+    <div class="setup-title">Tell us about you</div>
+    <div class="setup-sub">Step 1 of 4 — Farmer Information</div>
+  </div>
+  <div class="setup-body scroll-area">
+    <div class="form-group"><label class="form-label">Farmer Name *</label><input class="form-input" placeholder="Ramesh Kumar" value="Ramesh Kumar"/></div>
+    <div class="form-group"><label class="form-label">Village / Location *</label><input class="form-input" placeholder="Ludhiana, Punjab" value="Ludhiana, Punjab"/></div>
+    <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" type="tel" placeholder="98765 43210" value="98765 43210"/></div>
+    <div class="form-group"><label class="form-label">Preferred Language</label>
+      <select class="form-select"><option>English</option><option>Hindi</option><option>Punjabi</option></select>
+    </div>
+    <div style="height:12px"></div>
+    <button class="btn btn-primary btn-full" onclick="goTo('screen-setup-farm')">Continue →</button>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 7: SETUP – FARM DETAILS
+     ============================================================ -->
+<div id="screen-setup-farm" class="screen">
+  <div class="setup-header">
+    <div class="setup-header-top">
+      <button class="back-btn" onclick="goTo('screen-setup-farmer')">←</button>
+      <div class="setup-logo"><span class="setup-logo-icon">🌿</span><span class="setup-logo-text">AgriTech</span></div>
+    </div>
+    <div class="step-bar">
+      <div class="step-seg done"></div><div class="step-seg active"></div><div class="step-seg"></div><div class="step-seg"></div>
+    </div>
+    <div style="height:8px"></div>
+    <div class="setup-title">Farm Details</div>
+    <div class="setup-sub">Step 2 of 4 — Tell us about your farm</div>
+  </div>
+  <div class="setup-body scroll-area">
+    <div class="form-group"><label class="form-label">Total Farm Area (Acres) *</label><input class="form-input" type="number" placeholder="5.0" value="5.0"/></div>
+    <div class="form-group"><label class="form-label">Soil Type *</label>
+      <select class="form-select"><option>Loamy</option><option>Sandy Loam</option><option>Clay Loam</option><option>Black Soil</option><option>Alluvial</option><option>Red Loam</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Soil pH (optional)</label><input class="form-input" type="number" step="0.1" placeholder="6.8" value="6.8"/></div>
+    <div class="form-group"><label class="form-label">Water Availability</label>
+      <select class="form-select"><option>Low</option><option selected>Medium</option><option>High</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Irrigation Type</label>
+      <select class="form-select"><option>Borewell</option><option>Canal</option><option>Drip</option><option>Rainfed</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Current Season</label>
+      <select class="form-select"><option>Kharif (Monsoon)</option><option selected>Rabi (Winter)</option><option>Zaid (Summer)</option></select>
+    </div>
+    <div style="height:12px"></div>
+    <button class="btn btn-primary btn-full" onclick="goTo('screen-setup-fields')">Continue →</button>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 8: SETUP – FIELDS
+     ============================================================ -->
+<div id="screen-setup-fields" class="screen">
+  <div class="setup-header">
+    <div class="setup-header-top">
+      <button class="back-btn" onclick="goTo('screen-setup-farm')">←</button>
+      <div class="setup-logo"><span class="setup-logo-icon">🌿</span><span class="setup-logo-text">AgriTech</span></div>
+    </div>
+    <div class="step-bar">
+      <div class="step-seg done"></div><div class="step-seg done"></div><div class="step-seg active"></div><div class="step-seg"></div>
+    </div>
+    <div style="height:8px"></div>
+    <div class="setup-title">Your Fields</div>
+    <div class="setup-sub">Step 3 of 4 — Add field details</div>
+  </div>
+  <div class="setup-body scroll-area">
+    <!-- Field A -->
+    <div class="card mb12">
+      <div class="flex fai fjb mb12">
+        <span class="bold text-dark">Field A</span>
+        <span class="badge badge-green">Active</span>
+      </div>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Area (Acres)</label><input class="form-input" value="2.0"/></div>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Soil Type</label><select class="form-select"><option selected>Loamy</option><option>Sandy Loam</option></select></div>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Current Crop</label><input class="form-input" value="Wheat"/></div>
+      <div class="form-group" style="margin-bottom:0"><label class="form-label">Sowing Date</label><input class="form-input" type="date" value="2026-08-10"/></div>
+    </div>
+    <!-- Field B -->
+    <div class="card mb12">
+      <div class="flex fai fjb mb12">
+        <span class="bold text-dark">Field B</span>
+        <span class="badge badge-green">Active</span>
+      </div>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Area (Acres)</label><input class="form-input" value="3.0"/></div>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Soil Type</label><select class="form-select"><option>Loamy</option><option selected>Black Soil</option></select></div>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Current Crop</label><input class="form-input" value="Tomato"/></div>
+      <div class="form-group" style="margin-bottom:0"><label class="form-label">Sowing Date</label><input class="form-input" type="date" value="2026-08-05"/></div>
+    </div>
+    <button class="btn btn-outline btn-full mb12">+ Add Another Field</button>
+    <button class="btn btn-primary btn-full" onclick="goTo('screen-setup-livestock')">Continue →</button>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 9: SETUP – LIVESTOCK
+     ============================================================ -->
+<div id="screen-setup-livestock" class="screen">
+  <div class="setup-header">
+    <div class="setup-header-top">
+      <button class="back-btn" onclick="goTo('screen-setup-fields')">←</button>
+      <div class="setup-logo"><span class="setup-logo-icon">🌿</span><span class="setup-logo-text">AgriTech</span></div>
+    </div>
+    <div class="step-bar">
+      <div class="step-seg done"></div><div class="step-seg done"></div><div class="step-seg done"></div><div class="step-seg active"></div>
+    </div>
+    <div style="height:8px"></div>
+    <div class="setup-title">Livestock Summary</div>
+    <div class="setup-sub">Step 4 of 4 — How many animals do you have?</div>
+  </div>
+  <div class="setup-body scroll-area">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="card"><div class="flex fai fjb">
+        <div class="flex fai g12"><div class="animal-icon animal-cow">🐄</div><div><div class="bold text-dark">Cow</div><div class="text-sm text-muted">Gir, Sahiwal</div></div></div>
+        <div class="flex fai g8"><button style="width:32px;height:32px;border-radius:50%;background:var(--char-100);font-size:16px;cursor:pointer">−</button><span class="bold text-lg" style="min-width:24px;text-align:center">4</span><button style="width:32px;height:32px;border-radius:50%;background:var(--green-100);color:var(--green-800);font-size:16px;cursor:pointer">+</button></div>
+      </div></div>
+      <div class="card"><div class="flex fai fjb">
+        <div class="flex fai g12"><div class="animal-icon animal-buffalo">🐃</div><div><div class="bold text-dark">Buffalo</div><div class="text-sm text-muted">Murrah</div></div></div>
+        <div class="flex fai g8"><button style="width:32px;height:32px;border-radius:50%;background:var(--char-100);font-size:16px;cursor:pointer">−</button><span class="bold text-lg" style="min-width:24px;text-align:center">2</span><button style="width:32px;height:32px;border-radius:50%;background:var(--green-100);color:var(--green-800);font-size:16px;cursor:pointer">+</button></div>
+      </div></div>
+      <div class="card"><div class="flex fai fjb">
+        <div class="flex fai g12"><div class="animal-icon animal-sheep">🐑</div><div><div class="bold text-dark">Sheep</div><div class="text-sm text-muted">Merino</div></div></div>
+        <div class="flex fai g8"><button style="width:32px;height:32px;border-radius:50%;background:var(--char-100);font-size:16px;cursor:pointer">−</button><span class="bold text-lg" style="min-width:24px;text-align:center">5</span><button style="width:32px;height:32px;border-radius:50%;background:var(--green-100);color:var(--green-800);font-size:16px;cursor:pointer">+</button></div>
+      </div></div>
+      <div class="card"><div class="flex fai fjb">
+        <div class="flex fai g12"><div class="animal-icon animal-goat">🐐</div><div><div class="bold text-dark">Goat</div><div class="text-sm text-muted">Black Bengal</div></div></div>
+        <div class="flex fai g8"><button style="width:32px;height:32px;border-radius:50%;background:var(--char-100);font-size:16px;cursor:pointer">−</button><span class="bold text-lg" style="min-width:24px;text-align:center">3</span><button style="width:32px;height:32px;border-radius:50%;background:var(--green-100);color:var(--green-800);font-size:16px;cursor:pointer">+</button></div>
+      </div></div>
+    </div>
+    <div style="height:20px"></div>
+    <button class="btn btn-primary btn-full" onclick="goTo('screen-home')">🌿 Start Using AgriTech</button>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 10: HOME DASHBOARD
+     ============================================================ -->
+<div id="screen-home" class="screen">
+  <div class="home-header">
+    <div class="home-header-top">
+      <div>
+        <div class="home-greeting">Good Morning ☀️</div>
+        <div class="home-name">Ramesh Kumar</div>
+        <div class="home-location">📍 Ludhiana, Punjab · 5.0 Acre</div>
+      </div>
+      <button class="home-notif-btn" onclick="goTo('screen-notifications')">
+        🔔<div class="notif-badge"></div>
+      </button>
+    </div>
+    <div class="weather-card-home">
+      <div class="weather-icon">☀️</div>
+      <div style="flex:1">
+        <div class="weather-temp">28°C</div>
+        <div class="weather-desc">Sunny</div>
+        <div class="weather-details-row">
+          <div class="weather-stat">💧 52%</div>
+          <div class="weather-stat">🌧️ Rain Tomorrow 75%</div>
+        </div>
+      </div>
+      <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,0.3);padding:8px 14px;font-size:12px" onclick="goTo('screen-weather')">Forecast</button>
+    </div>
+  </div>
+  <div class="home-content scroll-area">
+
+    <!-- Today's Actions -->
+    <div>
+      <div class="cat-header"><div class="cat-title">Today's Actions</div><a class="cat-link" onclick="goTo('screen-calendar')">View All</a></div>
+      <div class="card" style="padding:8px 12px">
+        <div class="action-card" onclick="goTo('screen-vaccination')">
+          <div class="action-icon" style="background:var(--red-light)">💉</div>
+          <div class="action-info"><div class="action-title">Vaccination Due</div><div class="action-sub">Buffalo – Kali</div></div>
+          <div class="action-badge"><span class="badge badge-red">Due today</span></div>
+        </div>
+        <div class="divider" style="margin:4px 0"></div>
+        <div class="action-card" onclick="goTo('screen-calendar')">
+          <div class="action-icon" style="background:var(--green-50)">🌱</div>
+          <div class="action-info"><div class="action-title">Fertilizer Required</div><div class="action-sub">Wheat – Field A</div></div>
+          <div class="action-badge"><span class="badge badge-amber">Tomorrow</span></div>
+        </div>
+        <div class="divider" style="margin:4px 0"></div>
+        <div class="action-card" onclick="goTo('screen-weather')">
+          <div class="action-icon" style="background:#E3F2FD">🌧️</div>
+          <div class="action-info"><div class="action-title">Rain Alert</div><div class="action-sub">Rain likely tomorrow</div></div>
+          <div class="action-badge"><a class="cat-link" style="font-size:12px">View All</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div>
+      <div class="cat-header"><div class="cat-title">Quick Actions</div></div>
+      <div class="quick-grid">
+        <button class="quick-btn" onclick="goTo('screen-crop-rec')">
+          <div class="quick-btn-icon" style="background:var(--green-50)">🌾</div>
+          <div class="quick-btn-label">Crop Advice</div>
+        </button>
+        <button class="quick-btn" onclick="goTo('screen-scanner')">
+          <div class="quick-btn-icon" style="background:#FEF3E2">🔬</div>
+          <div class="quick-btn-label">Scan Crop</div>
+        </button>
+        <button class="quick-btn" onclick="goTo('screen-livestock')">
+          <div class="quick-btn-icon" style="background:var(--green-50)">🐄</div>
+          <div class="quick-btn-label">Livestock</div>
+        </button>
+        <button class="quick-btn" onclick="goTo('screen-farm-history')">
+          <div class="quick-btn-icon" style="background:#F3E8FF)">📋</div>
+          <div class="quick-btn-label">Farm Records</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Farm Health -->
+    <div>
+      <div class="cat-header"><div class="cat-title">Farm Health</div></div>
+      <div class="farm-health-row">
+        <div class="health-tile" onclick="goTo('screen-field-detail')">
+          <div class="health-tile-val">2</div>
+          <div class="health-tile-label">Fields</div>
+          <div class="health-tile-sub" style="color:var(--green-600)">Active</div>
+        </div>
+        <div class="health-tile" onclick="goTo('screen-livestock')">
+          <div class="health-tile-val text-red">1</div>
+          <div class="health-tile-label">Alerts</div>
+          <div class="health-tile-sub text-red">Urgent</div>
+        </div>
+        <div class="health-tile" onclick="goTo('screen-vaccination')">
+          <div class="health-tile-val text-amber">2</div>
+          <div class="health-tile-label">Vaccines</div>
+          <div class="health-tile-sub text-amber">Due Soon</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div>
+      <div class="cat-header"><div class="cat-title">Recent Activity</div><a class="cat-link" onclick="goTo('screen-farm-history')">History</a></div>
+      <div class="card" style="padding:12px 14px">
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:var(--green-50)">💧</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Irrigation — Field A</div>
+            <div class="timeline-date">13 Aug 2026</div>
+            <div class="timeline-detail text-sm">20 mm applied · Drip system</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:#FEF3E2">💉</div>
+          <div class="timeline-content">
+            <div class="timeline-title">BQ Vaccination — Kali (Cow)</div>
+            <div class="timeline-date">10 Aug 2026</div>
+          </div>
+        </div>
+        <div class="timeline-item" style="padding-bottom:0">
+          <div class="timeline-dot" style="background:var(--green-50)">🌱</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Urea Applied — Field B</div>
+            <div class="timeline-date">08 Aug 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="setTab('screen-home',this)"><div class="nav-icon">🏡</div>Home</div>
+    <div class="nav-item" onclick="setTab('screen-field-detail',this)"><div class="nav-icon">🌾</div>Crops</div>
+    <div class="nav-item center-btn" onclick="goTo('screen-scanner')"><div class="nav-center-circle">🔬</div></div>
+    <div class="nav-item" onclick="setTab('screen-livestock',this)"><div class="nav-icon">🐄</div>Livestock</div>
+    <div class="nav-item" onclick="setTab('screen-more',this)"><div class="nav-icon">☰</div>More</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 11: CROP RECOMMENDATION
+     ============================================================ -->
+<div id="screen-crop-rec" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Crop Recommendation</div>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <!-- Conditions used -->
+    <div class="card mb16">
+      <div class="section-label">Farm Conditions Used</div>
+      <div class="cond-bar">
+        <span class="cond-chip">🪨 Loamy</span>
+        <span class="cond-chip">💧 Medium</span>
+        <span class="cond-chip">❄️ Winter</span>
+        <span class="cond-chip">🌡️ 18°C</span>
+        <span class="cond-chip">🌧️ 450mm</span>
+      </div>
+      <div class="divider"></div>
+      <div class="text-sm text-muted">Scored 14 crops · Based on your farm profile</div>
+    </div>
+
+    <div class="section-label">Top 3 Recommended Crops</div>
+
+    <!-- Potato -->
+    <div class="crop-card" onclick="goTo('screen-field-detail')">
+      <div class="crop-rank rank-1">1</div>
+      <div class="crop-img">🥔</div>
+      <div class="crop-info">
+        <div class="crop-name">Potato</div>
+        <div class="crop-match">Excellent Match · Winter season</div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <span class="tag tag-green">90–110 days</span>
+          <span class="tag tag-green">High Profit</span>
+        </div>
+      </div>
+      <div class="crop-score"><div class="score-val">96</div><div class="score-lbl">/100</div></div>
+    </div>
+
+    <!-- Strawberry -->
+    <div class="crop-card">
+      <div class="crop-rank rank-2">2</div>
+      <div class="crop-img">🍓</div>
+      <div class="crop-info">
+        <div class="crop-name">Strawberry</div>
+        <div class="crop-match">Very Good Match · Winter season</div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <span class="tag tag-green">120–150 days</span>
+          <span class="tag tag-amber">Premium</span>
+        </div>
+      </div>
+      <div class="crop-score"><div class="score-val">90</div><div class="score-lbl">/100</div></div>
+    </div>
+
+    <!-- Peas -->
+    <div class="crop-card">
+      <div class="crop-rank rank-3">3</div>
+      <div class="crop-img">🫛</div>
+      <div class="crop-info">
+        <div class="crop-name">Peas</div>
+        <div class="crop-match">Good Match · Winter season</div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <span class="tag tag-green">60–80 days</span>
+          <span class="tag tag-green">Low Water</span>
+        </div>
+      </div>
+      <div class="crop-score"><div class="score-val">86</div><div class="score-lbl">/100</div></div>
+    </div>
+
+    <!-- Reason card -->
+    <div class="alert-box alert-green mt4">
+      <span style="font-size:20px">💡</span>
+      <div>
+        <div class="bold text-base text-dark">Why Potato is Best</div>
+        <div class="text-sm text-muted mt4">Loamy soil matches perfectly · Temperature 18°C optimal · Winter season · 450mm rainfall adequate with medium irrigation · Very high yield potential</div>
+      </div>
+    </div>
+
+    <!-- All scores -->
+    <div style="height:12px"></div>
+    <div class="section-label">All Crops Evaluated</div>
+    <div class="card" style="padding:12px 14px">
+      <div id="all-crop-scores">
+        <!-- generated by JS -->
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 12: FIELD / CROP DETAILS
+     ============================================================ -->
+<div id="screen-field-detail" class="screen">
+  <div style="position:relative">
+    <div class="field-hero">
+      <div style="position:absolute;top:16px;left:16px;display:flex;gap:8px">
+        <button class="back-btn" onclick="goBack()" style="background:rgba(255,255,255,0.2);border-color:transparent;color:#fff">←</button>
+      </div>
+      <div style="position:absolute;top:16px;right:16px">
+        <button class="icon-btn" style="background:rgba(255,255,255,0.2);border-color:transparent;color:#fff">✏️</button>
+      </div>
+      <div class="field-hero-crop">Wheat — Field A</div>
+      <div class="field-hero-meta">2.0 Acre · Loamy Soil · Punjab</div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <span class="badge" style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px">Season: Rabi</span>
+        <span class="badge" style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px">Sown: 10 Aug 2026</span>
+      </div>
+    </div>
+    <!-- Stage card floats over hero -->
+    <div style="padding:0 16px;margin-top:-20px;position:relative;z-index:2">
+      <div class="stage-card">
+        <div class="flex fai fjb">
+          <div>
+            <div class="stage-name">Tillering (20–35 DAS)</div>
+            <div class="stage-das">Day 35 of ~120 · Rabi Wheat</div>
+          </div>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div style="margin-top:12px">
+          <div class="flex fai fjb mb4"><span class="text-xs text-muted">Growth Progress</span><span class="bold text-sm text-green">65%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-area" style="padding:16px 20px">
+    <!-- Weather impact -->
+    <div class="alert-box alert-amber mb12">
+      <span style="font-size:18px">🌧️</span>
+      <div><div class="bold text-sm">Weather Impact</div><div class="text-sm text-muted mt4">Rain tomorrow may delay fertilizer spraying. Review plan.</div></div>
+    </div>
+
+    <!-- Next Activities -->
+    <div class="cat-header"><div class="cat-title">Next Activities</div><a class="cat-link" onclick="goTo('screen-calendar')">Calendar</a></div>
+    <div class="card" style="padding:8px 12px;margin-bottom:14px">
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--green-50)">🌱</div>
+        <div class="activity-info"><div class="activity-title">Fertilizer Application</div><div class="activity-when">Tomorrow · Urea 50 kg/ha</div></div>
+        <span class="badge badge-amber">Tomorrow</span>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:#E3F2FD">💧</div>
+        <div class="activity-info"><div class="activity-title">Irrigation</div><div class="activity-when">In 2 days</div></div>
+        <span class="badge badge-gray">2 days</span>
+      </div>
+      <div class="activity-item" style="border-bottom:none">
+        <div class="activity-icon" style="background:#FEF3E2">🔧</div>
+        <div class="activity-info"><div class="activity-title">Weed Management</div><div class="activity-when">In 3 days · Manual weeding</div></div>
+        <span class="badge badge-gray">3 days</span>
+      </div>
+    </div>
+
+    <!-- Tab row -->
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="tab" style="background:var(--green-700);color:#fff;flex:none;padding:8px 16px;border-radius:99px;font-size:13px;font-weight:600">Activities</button>
+      <button class="tab" onclick="goTo('screen-farm-history')" style="flex:none;padding:8px 16px;border-radius:99px;font-size:13px;font-weight:500;color:var(--char-500)">History</button>
+      <button class="tab" onclick="goTo('screen-crop-advisory')" style="flex:none;padding:8px 16px;border-radius:99px;font-size:13px;font-weight:500;color:var(--char-500)">Advisory</button>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 13: CROP ACTIVITY CALENDAR
+     ============================================================ -->
+<div id="screen-calendar" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Activity Calendar</div>
+    <button class="icon-btn">➕</button>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <!-- Field selector -->
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="btn btn-primary" style="padding:8px 16px;font-size:13px;border-radius:99px">Wheat – Field A</button>
+      <button class="btn btn-secondary" style="padding:8px 16px;font-size:13px;border-radius:99px">Tomato – Field B</button>
+    </div>
+
+    <!-- Calendar -->
+    <div class="card mb14">
+      <div class="cal-header">
+        <button class="icon-btn" style="width:30px;height:30px;font-size:14px">‹</button>
+        <div class="cal-month">August 2026</div>
+        <button class="icon-btn" style="width:30px;height:30px;font-size:14px">›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-day-name">Mon</div><div class="cal-day-name">Tue</div><div class="cal-day-name">Wed</div>
+        <div class="cal-day-name">Thu</div><div class="cal-day-name">Fri</div><div class="cal-day-name">Sat</div><div class="cal-day-name">Sun</div>
+        <div class="cal-day other-month">28</div><div class="cal-day other-month">29</div><div class="cal-day other-month">30</div><div class="cal-day other-month">31</div>
+        <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div>
+        <div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day has-event">6</div><div class="cal-day">7</div>
+        <div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day">10</div>
+        <div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day today has-event">13</div><div class="cal-day">14</div>
+        <div class="cal-day has-event">15</div><div class="cal-day has-event">16</div><div class="cal-day">17</div>
+        <div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div>
+        <div class="cal-day">22</div><div class="cal-day has-event">23</div><div class="cal-day">24</div><div class="cal-day">25</div>
+        <div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div>
+        <div class="cal-day">30</div><div class="cal-day">31</div>
+      </div>
+    </div>
+
+    <!-- Today -->
+    <div class="section-label">TODAY — 15 Aug</div>
+    <div class="card mb12" style="padding:10px 12px">
+      <div class="activity-item" style="border-bottom:none">
+        <div class="activity-icon" style="background:#E3F2FD">💧</div>
+        <div class="activity-info"><div class="activity-title">Irrigation</div><div class="activity-when">Tillering stage · 20mm</div></div>
+        <span class="badge badge-green">✓ Done</span>
+      </div>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="section-label">UPCOMING</div>
+    <div class="card" style="padding:10px 12px;margin-bottom:12px">
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--green-50)">🌱</div>
+        <div class="activity-info"><div class="activity-title">Fertilizer Application</div><div class="activity-when">16 Aug · Urea 50 kg/ha</div></div>
+        <span class="badge badge-amber">Tomorrow</span>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:#E3F2FD">💧</div>
+        <div class="activity-info"><div class="activity-title">Fertigation (Drip)</div><div class="activity-when">21 Aug · 13:0:45 @ 3g/L</div></div>
+        <span class="badge badge-gray">6 days</span>
+      </div>
+      <div class="activity-item" style="border-bottom:none">
+        <div class="activity-icon" style="background:var(--cream)">📊</div>
+        <div class="activity-info"><div class="activity-title">Growth Check</div><div class="activity-when">27 Aug · Stage assessment</div></div>
+        <span class="badge badge-gray">12 days</span>
+      </div>
+    </div>
+
+    <!-- Growth stage timeline -->
+    <div class="section-label">GROWTH STAGE PROGRESS</div>
+    <div class="card" style="padding:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span class="text-sm bold text-dark">Wheat – Rabi Season</span>
+        <span class="text-sm text-green bold">35 / 120 DAS</span>
+      </div>
+      <div class="progress-bar" style="height:12px;margin-bottom:10px"><div class="progress-fill" style="width:29%"></div></div>
+      <div style="display:flex;justify-content:space-between;gap:4px">
+        <div style="text-align:center;font-size:10px;color:var(--green-700);font-weight:600">Germination<br><span style="color:var(--char-300)">✓ Done</span></div>
+        <div style="text-align:center;font-size:10px;color:var(--green-700);font-weight:700">Tillering<br><span style="color:var(--green-600)">● Now</span></div>
+        <div style="text-align:center;font-size:10px;color:var(--char-300)">Jointing<br>40 DAS</div>
+        <div style="text-align:center;font-size:10px;color:var(--char-300)">Heading<br>75 DAS</div>
+        <div style="text-align:center;font-size:10px;color:var(--char-300)">Harvest<br>120 DAS</div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 14: WEATHER ADVISORY
+     ============================================================ -->
+<div id="screen-weather" class="screen">
+  <div style="flex-shrink:0">
+    <div style="position:relative">
+      <button class="back-btn" onclick="goBack()" style="position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.2);border-color:transparent;color:#fff;z-index:2">←</button>
+    </div>
+    <div class="weather-hero">
+      <div style="height:16px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:20px">
+        <div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.7)">Ludhiana, Punjab</div>
+          <div class="weather-main-temp">28°C</div>
+          <div style="font-size:16px;color:rgba(255,255,255,0.85);margin-top:4px">Sunny · Feels like 31°C</div>
+          <div style="display:flex;gap:16px;margin-top:10px">
+            <div class="weather-stat">💧 52% Humidity</div>
+            <div class="weather-stat">💨 12 km/h Wind</div>
+          </div>
+        </div>
+        <div class="weather-main-icon">☀️</div>
+      </div>
+      <div style="margin-top:20px">
+        <div class="weather-forecast-row">
+          <div class="forecast-day"><div class="forecast-day-name">Fri</div><div class="forecast-icon">☀️</div><div class="forecast-temp">30/20°</div></div>
+          <div class="forecast-day"><div class="forecast-day-name">Sat</div><div class="forecast-icon">⛅</div><div class="forecast-temp">27/19°</div></div>
+          <div class="forecast-day"><div class="forecast-day-name">Sun</div><div class="forecast-icon">🌧️</div><div class="forecast-temp">24/18°</div></div>
+          <div class="forecast-day"><div class="forecast-day-name">Mon</div><div class="forecast-icon">🌧️</div><div class="forecast-temp">24/19°</div></div>
+          <div class="forecast-day"><div class="forecast-day-name">Tue</div><div class="forecast-icon">⛅</div><div class="forecast-temp">26/20°</div></div>
+          <div class="forecast-day"><div class="forecast-day-name">Wed</div><div class="forecast-icon">☀️</div><div class="forecast-temp">29/21°</div></div>
+          <div class="forecast-day"><div class="forecast-day-name">Thu</div><div class="forecast-icon">☀️</div><div class="forecast-temp">30/21°</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-area" style="padding:16px 20px">
+    <!-- Alert -->
+    <div class="card mb12" style="border:2px solid var(--amber);background:#FFFBF5">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div style="font-size:32px">🌧️</div>
+        <div>
+          <div class="bold text-lg text-dark">Rain Expected Tomorrow</div>
+          <div class="text-sm text-muted">Probability: 75% · 25–40mm expected</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label mt8">RECOMMENDED ACTION</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="action-card" style="padding:8px;background:var(--cream);border-radius:var(--radius-sm)">
+          <div class="action-icon" style="background:#FEF3E2;width:32px;height:32px;font-size:14px">🚫</div>
+          <div class="action-info"><div class="activity-title" style="font-size:13px">Postpone fertilizer spraying</div></div>
+        </div>
+        <div class="action-card" style="padding:8px;background:var(--cream);border-radius:var(--radius-sm)">
+          <div class="action-icon" style="background:var(--cream);width:32px;height:32px;font-size:14px">📋</div>
+          <div class="action-info"><div class="activity-title" style="font-size:13px">Review fertilizer plan</div></div>
+        </div>
+        <div class="action-card" style="padding:8px;background:var(--cream);border-radius:var(--radius-sm)">
+          <div class="action-icon" style="background:#E3F2FD;width:32px;height:32px;font-size:14px">💧</div>
+          <div class="action-info"><div class="activity-title" style="font-size:13px">Suspend irrigation — rain adequate</div></div>
+        </div>
+        <div class="action-card" style="padding:8px;background:var(--cream);border-radius:var(--radius-sm)">
+          <div class="action-icon" style="background:var(--green-50);width:32px;height:32px;font-size:14px">🔧</div>
+          <div class="action-info"><div class="activity-title" style="font-size:13px">Check field drainage channels</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 15: CROP DISEASE SCANNER
+     ============================================================ -->
+<div id="screen-scanner" class="screen" style="background:#000">
+  <div style="background:var(--char-900);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0">
+    <button class="back-btn" onclick="goBack()" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.1);color:#fff">←</button>
+    <div style="flex:1;font-size:17px;font-weight:700;color:#fff">Crop AI Scanner</div>
+    <button class="icon-btn" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.1);color:#fff">⚙️</button>
+  </div>
+  <div class="scanner-viewfinder">
+    <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:20px;text-align:center;padding:0 32px">
+      Point camera at affected crop leaf
+    </div>
+    <div class="viewfinder-box">
+      <div class="vf-corner vf-tl"></div>
+      <div class="vf-corner vf-tr"></div>
+      <div class="vf-corner vf-bl"></div>
+      <div class="vf-corner vf-br"></div>
+      <div class="scanner-scan-line"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0.15">
+        <div style="font-size:80px">🍃</div>
+      </div>
+    </div>
+    <div class="scanner-hint">Hold steady · Ensure good lighting · Keep leaf in frame</div>
+  </div>
+  <div class="scanner-controls" style="background:var(--char-900);border-top:1px solid rgba(255,255,255,0.08)">
+    <button class="camera-alt-btn" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.1);color:#fff" onclick="goTo('screen-disease-result')">🖼️</button>
+    <button class="shutter-btn" onclick="goTo('screen-disease-result')">📷</button>
+    <button class="camera-alt-btn" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.1);color:#fff">🔄</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 16: DISEASE RESULT
+     ============================================================ -->
+<div id="screen-disease-result" class="screen">
+  <div style="position:relative;flex-shrink:0">
+    <div class="disease-leaf-img" style="background:linear-gradient(135deg,#1a3a1a,#2d6a2d)">
+      <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:100px;opacity:0.4">🍃</span>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent)"></div>
+    </div>
+    <button class="back-btn" onclick="goBack()" style="position:absolute;top:16px;left:16px;background:rgba(0,0,0,0.4);border-color:transparent;color:#fff">←</button>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div class="flex fai fjb mb12">
+      <div>
+        <div style="font-size:22px;font-weight:800;color:var(--char-900)">Early Blight</div>
+        <div class="text-sm text-muted mt4">Tomato — Alternaria solani</div>
+      </div>
+      <div class="conf-ring">
+        <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--char-100)" stroke-width="7"/><circle cx="40" cy="40" r="34" fill="none" stroke="var(--green-600)" stroke-width="7" stroke-dasharray="213.6" stroke-dashoffset="36.4" stroke-linecap="round"/></svg>
+        <div class="conf-ring-val">92%<div class="conf-ring-label">Confidence</div></div>
+      </div>
+    </div>
+    <div class="result-chip-row">
+      <span class="badge badge-amber">⚠️ Moderate Severity</span>
+      <span class="badge badge-blue">Fungal Disease</span>
+      <span class="badge badge-green">Treatable</span>
+    </div>
+    <div class="divider"></div>
+
+    <!-- Severity bar -->
+    <div class="severity-bar-wrap">
+      <div class="severity-label">
+        <span class="text-sm bold text-dark">Infection Severity</span>
+        <span class="text-sm bold text-amber">Moderate (40%)</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill amber" style="width:40%"></div></div>
+    </div>
+
+    <div style="height:12px"></div>
+    <div class="section-label">KEY SYMPTOMS OBSERVED</div>
+    <div class="card mb12" style="padding:12px 14px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="flex fai g8"><span>🔴</span><span class="text-sm text-dark">Dark brown circular spots with concentric rings</span></div>
+        <div class="flex fai g8"><span>🔴</span><span class="text-sm text-dark">Yellow halo surrounding lesions</span></div>
+        <div class="flex fai g8"><span>🟡</span><span class="text-sm text-dark">Lower leaf yellowing and premature drop</span></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="goTo('screen-crop-advisory')">📋 View Full Advisory</button>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 17: CROP DISEASE ADVISORY
+     ============================================================ -->
+<div id="screen-crop-advisory" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Disease Advisory</div>
+    <button class="icon-btn">💾</button>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div class="flex fai g12 mb16">
+      <div style="width:48px;height:48px;border-radius:var(--radius-sm);background:var(--green-50);display:flex;align-items:center;justify-content:center;font-size:24px">🍂</div>
+      <div><div style="font-size:20px;font-weight:800;color:var(--char-900)">Early Blight</div><div class="text-sm text-muted">Tomato · Alternaria solani · Fungal</div></div>
+    </div>
+
+    <div class="alert-box alert-red mb12">
+      <span style="font-size:18px">🚨</span>
+      <div><div class="bold text-sm" style="color:var(--red)">Immediate Action Required</div><div class="text-xs text-muted mt4">Spread rapidly in high humidity. Act within 24–48 hours.</div></div>
+    </div>
+
+    <div class="section-label">WHAT TO DO NOW</div>
+    <div class="card mb12" style="padding:12px 14px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="flex g8"><span>1️⃣</span><span class="text-sm text-dark">Remove all visibly infected leaves and destroy (do not compost)</span></div>
+        <div class="flex g8"><span>2️⃣</span><span class="text-sm text-dark">Improve field ventilation by pruning dense lower foliage</span></div>
+        <div class="flex g8"><span>3️⃣</span><span class="text-sm text-dark">Avoid overhead watering — switch to drip immediately</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">TREATMENT</div>
+    <div class="card mb12" style="padding:12px 14px">
+      <div class="bold text-sm text-dark mb8">🌿 Organic Treatment</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Copper Oxychloride 2.5g/L water — spray every 7 days</span></div>
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Neem oil 5ml/L + liquid soap 3ml/L — foliar spray</span></div>
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Trichoderma harzianum 5g/L soil drench</span></div>
+      </div>
+      <div class="divider"></div>
+      <div class="bold text-sm text-dark mb8 mt8">⚗️ Chemical Treatment</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Mancozeb 75% WP @ 2g/L — spray 2–3 times, 7-day intervals</span></div>
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Iprodione 50% WP @ 2g/L — high severity case</span></div>
+        <div class="flex fai g8"><span class="dot-amber"></span><span class="text-sm text-amber">PHI: Stop spraying 7 days before harvest</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">PREVENTION</div>
+    <div class="card mb12" style="padding:12px 14px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Crop rotation with non-solanaceous crops</span></div>
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Field sanitation — remove crop debris after harvest</span></div>
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Regular scouting every 3–4 days during humid conditions</span></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full">💾 Save Advisory</button>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 18: LIVESTOCK DASHBOARD
+     ============================================================ -->
+<div id="screen-livestock" class="screen">
+  <div class="livestock-header">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.7)">Livestock</div>
+        <div style="font-size:22px;font-weight:800;color:#fff">My Animals</div>
+      </div>
+      <button class="icon-btn" style="background:rgba(255,255,255,0.15);border-color:transparent;color:#fff">🔔</button>
+    </div>
+    <div class="livestock-summary-row">
+      <div class="ls-stat"><div class="ls-stat-val">14</div><div class="ls-stat-lbl">Total Animals</div></div>
+      <div class="ls-stat" style="border-left-color:var(--red-light)"><div class="ls-stat-val" style="color:#ff8080">1</div><div class="ls-stat-lbl">Alerts</div></div>
+      <div class="ls-stat"><div class="ls-stat-val" style="color:var(--amber)">2</div><div class="ls-stat-lbl">Due Soon</div></div>
+    </div>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div class="alert-box alert-red mb12">
+      <span style="font-size:18px">🚨</span>
+      <div><div class="bold text-sm text-red">Urgent: Vaccination Overdue</div><div class="text-xs text-muted mt4">Kali (Buffalo) — FMD Vaccine due today</div></div>
+    </div>
+
+    <div class="cat-header mt4"><div class="cat-title">All Animals</div><button class="icon-btn" style="width:28px;height:28px;font-size:12px">≡</button></div>
+
+    <!-- Cow -->
+    <div class="animal-row" onclick="goTo('screen-animal-profile')">
+      <div class="animal-avatar animal-cow">🐄</div>
+      <div style="flex:1"><div class="bold text-dark">Gauri (Cow)</div><div class="text-sm text-muted">2.5 Years · Sahiwal</div></div>
+      <span class="badge badge-green">Healthy</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="animal-row" onclick="goTo('screen-animal-profile')">
+      <div class="animal-avatar animal-buffalo">🐃</div>
+      <div style="flex:1"><div class="bold text-dark">Kali (Buffalo)</div><div class="text-sm text-muted">4 Years · Murrah</div></div>
+      <span class="badge badge-red">Vacc Due</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="animal-row" onclick="goTo('screen-animal-profile')">
+      <div class="animal-avatar animal-sheep">🐑</div>
+      <div style="flex:1"><div class="bold text-dark">Moti (Sheep)</div><div class="text-sm text-muted">1 Year · Merino</div></div>
+      <span class="badge badge-green">Healthy</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="animal-row" onclick="goTo('screen-animal-profile')">
+      <div class="animal-avatar animal-goat">🐐</div>
+      <div style="flex:1"><div class="bold text-dark">Rani (Goat)</div><div class="text-sm text-muted">1.5 Years</div></div>
+      <span class="badge badge-green">Healthy</span>
+      <span class="chevron">›</span>
+    </div>
+
+    <div style="height:12px"></div>
+    <button class="btn btn-outline btn-full" onclick="goTo('screen-health-assessment')">🔍 Quick Health Assessment</button>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="setTab('screen-home',this)"><div class="nav-icon">🏡</div>Home</div>
+    <div class="nav-item" onclick="setTab('screen-field-detail',this)"><div class="nav-icon">🌾</div>Crops</div>
+    <div class="nav-item center-btn" onclick="goTo('screen-scanner')"><div class="nav-center-circle">🔬</div></div>
+    <div class="nav-item active" onclick="setTab('screen-livestock',this)"><div class="nav-icon">🐄</div>Livestock</div>
+    <div class="nav-item" onclick="setTab('screen-more',this)"><div class="nav-icon">☰</div>More</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 19: ANIMAL PROFILE
+     ============================================================ -->
+<div id="screen-animal-profile" class="screen">
+  <div class="animal-profile-hero">
+    <button class="back-btn" onclick="goBack()" style="position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.2);border-color:transparent;color:#fff">←</button>
+    <button class="icon-btn" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.2);border-color:transparent;color:#fff">📷</button>
+    <div class="animal-profile-avatar">🐄</div>
+    <div>
+      <div class="animal-profile-name">Gauri</div>
+      <div class="animal-profile-type">Cow (Sahiwal) · Tag: TAG-001</div>
+      <span class="badge mt8" style="background:rgba(255,255,255,0.2);color:#fff">🟢 Healthy</span>
+    </div>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div class="info-grid mb14">
+      <div class="info-tile"><div class="info-tile-label">Breed</div><div class="info-tile-val">Sahiwal</div></div>
+      <div class="info-tile"><div class="info-tile-label">Age</div><div class="info-tile-val">2.5 Years</div></div>
+      <div class="info-tile"><div class="info-tile-label">Weight</div><div class="info-tile-val">420 kg</div></div>
+      <div class="info-tile"><div class="info-tile-label">Milk Yield</div><div class="info-tile-val">8 L/day</div></div>
+    </div>
+
+    <div class="section-label">VACCINATION HISTORY</div>
+    <div class="card mb12" style="padding:10px 14px">
+      <div class="row-item" style="padding:10px 0">
+        <div class="row-main"><div class="row-title">FMD Vaccine</div><div class="row-sub">12 Jun 2026</div></div>
+        <span class="badge badge-green">✓ Done</span>
+      </div>
+      <div class="row-item" style="padding:10px 0">
+        <div class="row-main"><div class="row-title">BQ Vaccine</div><div class="row-sub">12 Jun 2026</div></div>
+        <span class="badge badge-green">✓ Done</span>
+      </div>
+      <div class="row-item" style="padding:10px 0;border-bottom:none">
+        <div class="row-main"><div class="row-title">Anthrax Vaccine</div><div class="row-sub">20 Aug 2026 — Due</div></div>
+        <span class="badge badge-amber">Due Soon</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full mb8" onclick="goTo('screen-health-assessment')">🩺 Health Assessment</button>
+    <button class="btn btn-secondary btn-full" onclick="goTo('screen-vaccination')">💉 Vaccination Tracker</button>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 20: LIVESTOCK HEALTH ASSESSMENT (NO CAMERA)
+     ============================================================ -->
+<div id="screen-health-assessment" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Health Assessment</div>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div class="form-group">
+      <label class="form-label">Select Animal *</label>
+      <select class="form-select">
+        <option>Gauri (Cow)</option><option selected>Kali (Buffalo)</option>
+        <option>Moti (Sheep)</option><option>Rani (Goat)</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Age (Years)</label><input class="form-input" type="number" value="4" placeholder="e.g. 4"/></div>
+      <div class="form-group"><label class="form-label">Temperature (°F)</label><input class="form-input" type="number" step="0.1" value="104.2" placeholder="102–105"/></div>
+    </div>
+
+    <div class="section-label" style="margin-bottom:10px">SELECT SYMPTOMS</div>
+    <div class="symptom-grid" id="symptom-grid">
+      <div class="symptom-chip selected" onclick="toggleSymptom(this)"><div class="symptom-check">✓</div>Fever</div>
+      <div class="symptom-chip selected" onclick="toggleSymptom(this)"><div class="symptom-check">✓</div>Loss of Appetite</div>
+      <div class="symptom-chip" onclick="toggleSymptom(this)"><div class="symptom-check"></div>Lameness</div>
+      <div class="symptom-chip" onclick="toggleSymptom(this)"><div class="symptom-check"></div>Skin Lumps</div>
+      <div class="symptom-chip" onclick="toggleSymptom(this)"><div class="symptom-check"></div>Cough</div>
+      <div class="symptom-chip" onclick="toggleSymptom(this)"><div class="symptom-check"></div>Nasal Discharge</div>
+      <div class="symptom-chip" onclick="toggleSymptom(this)"><div class="symptom-check"></div>Diarrhea</div>
+      <div class="symptom-chip" onclick="toggleSymptom(this)"><div class="symptom-check"></div>Others</div>
+    </div>
+
+    <div class="form-group mt12"><label class="form-label">Additional Notes (optional)</label><textarea class="form-input" rows="2" style="resize:none" placeholder="Describe any other observations..."></textarea></div>
+
+    <div class="alert-box alert-blue mt4 mb12">
+      <span style="font-size:16px">ℹ️</span>
+      <div class="text-xs text-muted">AI analysis is advisory only. Always confirm with a registered veterinarian for serious conditions.</div>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="goTo('screen-ml-result')">🤖 Analyse with AI</button>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 21: LIVESTOCK ML RESULT
+     ============================================================ -->
+<div id="screen-ml-result" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Assessment Result</div>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+
+    <!-- Confidence Ring -->
+    <div class="result-ring-wrap mb12">
+      <div style="position:relative;width:90px;height:90px;flex-shrink:0">
+        <svg width="90" height="90" viewBox="0 0 90 90" style="transform:rotate(-90deg)">
+          <circle cx="45" cy="45" r="38" fill="none" stroke="var(--char-100)" stroke-width="8"/>
+          <circle cx="45" cy="45" r="38" fill="none" stroke="var(--amber)" stroke-width="8" stroke-dasharray="238.76" stroke-dashoffset="28.65" stroke-linecap="round"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--amber)">88%<div style="font-size:9px;color:var(--char-500);font-weight:600">AI Match</div></div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:var(--char-500);text-transform:uppercase;letter-spacing:.5px">Possible Condition</div>
+        <div style="font-size:20px;font-weight:800;color:var(--char-900);margin-top:4px;line-height:1.2">Foot &amp; Mouth Disease</div>
+        <div style="font-size:12px;color:var(--char-500);margin-top:4px">Confidence: 88%</div>
+      </div>
+    </div>
+
+    <!-- Risk -->
+    <div class="flex fai g8 mb12">
+      <span class="bold text-sm text-dark">Risk Level:</span>
+      <span class="risk-badge risk-high">⚠️ High</span>
+    </div>
+
+    <div class="section-label">MATCHED SYMPTOMS</div>
+    <div class="card mb12" style="padding:12px 14px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="flex fai g8"><span class="dot-red"></span><span class="text-sm">Fever (104.2°F)</span></div>
+        <div class="flex fai g8"><span class="dot-red"></span><span class="text-sm">Loss of Appetite</span></div>
+        <div class="flex fai g8"><span class="dot-amber"></span><span class="text-sm">Mouth Lesions — related symptom</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">RECOMMENDED ACTION</div>
+    <div class="alert-box alert-red mb12">
+      <span style="font-size:18px">🚨</span>
+      <div>
+        <div class="bold text-sm text-red">Immediate veterinary consultation required</div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">
+          <div class="text-sm">• Isolate the animal immediately</div>
+          <div class="text-sm">• Limit animal movement</div>
+          <div class="text-sm">• Contact veterinarian</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-box alert-blue mb12">
+      <span style="font-size:14px">ℹ️</span>
+      <div class="text-xs text-muted">AI result is advisory. Veterinary confirmation is required.</div>
+    </div>
+
+    <button class="btn btn-primary btn-full mb8" onclick="goTo('screen-livestock-advisory')">📋 View Full Advisory</button>
+    <button class="btn btn-secondary btn-full" onclick="goTo('screen-vaccination')">💉 Check Vaccination</button>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 22: LIVESTOCK ADVISORY
+     ============================================================ -->
+<div id="screen-livestock-advisory" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">FMD Advisory</div>
+    <button class="icon-btn">💾</button>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div class="flex fai g12 mb12">
+      <div style="width:48px;height:48px;border-radius:var(--radius-sm);background:#E3F2FD;display:flex;align-items:center;justify-content:center;font-size:24px">🐃</div>
+      <div><div style="font-size:18px;font-weight:800;">Foot &amp; Mouth Disease</div><div class="text-sm text-muted">FMD Advisory · Kali (Buffalo)</div></div>
+    </div>
+
+    <div class="section-label">IMMEDIATE ACTION</div>
+    <div class="card mb12" style="padding:12px 14px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="flex g8"><span>🚨</span><span class="text-sm">Isolate the animal — separate shed with separate staff</span></div>
+        <div class="flex g8"><span>🧼</span><span class="text-sm">Oral lesions: wash with 1% KMnO4 solution; apply glycerin-iodine paste</span></div>
+        <div class="flex g8"><span>🦶</span><span class="text-sm">Hoof lesions: 5% Formalin footbath + antiseptic dressing</span></div>
+        <div class="flex g8"><span>💊</span><span class="text-sm">Meloxicam 0.5mg/kg SC for pain and fever relief</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">PREVENTION</div>
+    <div class="card mb12" style="padding:12px 14px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Regular bi-annual herd vaccination — no animal skipped</span></div>
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">Foot dip 2% Sodium Hydroxide at farm entrance daily</span></div>
+        <div class="flex fai g8"><span class="dot-green"></span><span class="text-sm">21-day quarantine for any newly purchased animal</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">WHEN TO CALL VET</div>
+    <div class="alert-box alert-red mb12">
+      <span style="font-size:18px">🏥</span>
+      <div>
+        <div class="bold text-sm text-red">Call veterinarian immediately if:</div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+          <div class="text-sm">• Animal stops eating for &gt;24 hours</div>
+          <div class="text-sm">• Temperature above 106°F persists</div>
+          <div class="text-sm">• Hoof wall begins to separate</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">VACCINATION</div>
+    <div class="card mb12" style="padding:12px 14px">
+      <div class="bold text-sm text-dark mb8">FMD Inactivated Polyvalent Vaccine</div>
+      <div class="flex fai fjb">
+        <span class="text-sm text-muted">Next due:</span><span class="bold text-sm text-amber">Overdue — Immediately</span>
+      </div>
+      <div class="flex fai fjb mt4">
+        <span class="text-sm text-muted">Frequency:</span><span class="bold text-sm">Every 6 months (Bi-annual)</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full">💾 Save Advisory</button>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 23: VACCINATION TRACKER
+     ============================================================ -->
+<div id="screen-vaccination" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Vaccination Tracker</div>
+    <button class="icon-btn">➕</button>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div class="tabs">
+      <div class="tab active" onclick="switchVaccTab(this,'all')">All</div>
+      <div class="tab" onclick="switchVaccTab(this,'due')">Due</div>
+      <div class="tab" onclick="switchVaccTab(this,'done')">Completed</div>
+    </div>
+
+    <div id="vacc-all">
+      <div class="vacc-item vacc-overdue">
+        <div class="animal-icon animal-buffalo">🐃</div>
+        <div style="flex:1"><div class="bold text-dark">Kali (Buffalo)</div><div class="text-sm text-muted">FMD Vaccine</div><div class="text-xs text-red mt4">Overdue — Due today</div></div>
+        <button class="btn" style="padding:6px 12px;font-size:12px;background:var(--red-light);color:var(--red);border-radius:99px" onclick="goTo('screen-livestock-advisory')">Act Now</button>
+      </div>
+      <div class="vacc-item vacc-due-soon">
+        <div class="animal-icon animal-goat">🐐</div>
+        <div style="flex:1"><div class="bold text-dark">Rani (Goat)</div><div class="text-sm text-muted">Anthrax Vaccine</div><div class="text-xs text-amber mt4">Due in 4 days</div></div>
+        <button class="btn" style="padding:6px 12px;font-size:12px;background:#FEF3E2;color:#92400E;border-radius:99px">Schedule</button>
+      </div>
+      <div class="vacc-item vacc-done">
+        <div class="animal-icon animal-sheep">🐑</div>
+        <div style="flex:1"><div class="bold text-dark">Moti (Sheep)</div><div class="text-sm text-muted">FMD Vaccine</div><div class="text-xs text-muted mt4">Yesterday</div></div>
+        <span class="badge badge-green">✓ Done</span>
+      </div>
+      <div class="vacc-item vacc-done">
+        <div class="animal-icon animal-goat">🐐</div>
+        <div style="flex:1"><div class="bold text-dark">Rani (Goat)</div><div class="text-sm text-muted">PPR Vaccine</div><div class="text-xs text-muted mt4">Completed</div></div>
+        <span class="badge badge-green">✓ Done</span>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 24: FARM HISTORY
+     ============================================================ -->
+<div id="screen-farm-history" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Farm History</div>
+    <select class="form-select" style="padding:6px 28px 6px 10px;font-size:13px;border-radius:99px;background-color:var(--cream)">
+      <option>All</option><option>Crop</option><option>Animal</option><option>Expense</option><option>Health</option>
+    </select>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div style="font-size:13px;font-weight:700;color:var(--char-500);margin-bottom:12px">15 Aug 2026</div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:var(--green-50)">🌱</div>
+      <div class="timeline-content"><div class="timeline-title">Fertilizer Applied — Wheat, Field A</div><div class="timeline-date">15 Aug · 10:30 AM</div><div class="timeline-detail">Urea 50 kg/ha top dress at tillering stage</div></div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--char-500);margin:4px 0 12px">14 Aug 2026</div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:var(--green-50)">🔬</div>
+      <div class="timeline-content"><div class="timeline-title">Disease Scan — Tomato, Field B</div><div class="timeline-date">14 Aug · 9:00 AM</div><div class="timeline-detail">Early Blight detected · Confidence 92%</div></div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:#FEF3E2">💰</div>
+      <div class="timeline-content"><div class="timeline-title">Expense Added — FMD Vaccine</div><div class="timeline-date">14 Aug</div><div class="timeline-detail">₹2,400 · Veterinary</div></div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--char-500);margin:4px 0 12px">12 Aug 2026</div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:#E3F2FD">💧</div>
+      <div class="timeline-content"><div class="timeline-title">Irrigation — Field A</div><div class="timeline-date">12 Aug</div><div class="timeline-detail">20mm applied · Drip system</div></div>
+    </div>
+    <div class="timeline-item" style="padding-bottom:0">
+      <div class="timeline-dot" style="background:var(--green-50)">💉</div>
+      <div class="timeline-content"><div class="timeline-title">BQ Vaccination — Kali (Buffalo)</div><div class="timeline-date">12 Aug</div><div class="timeline-detail">Completed · ₹800</div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 25: EXPENSE TRACKER
+     ============================================================ -->
+<div id="screen-expenses" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Expense Tracker</div>
+    <button class="icon-btn">➕</button>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <!-- Total -->
+    <div class="card-green mb14">
+      <div style="font-size:13px;color:rgba(255,255,255,0.75)">Total This Season</div>
+      <div style="font-size:32px;font-weight:800;color:#fff;margin-top:4px">₹48,500</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px">Kharif 2026 · Aug – Nov</div>
+    </div>
+
+    <!-- Mini bar chart -->
+    <div class="card mb14" style="padding:14px">
+      <div class="section-label">MONTHLY SPEND</div>
+      <div class="expense-chart-bar">
+        <div class="chart-col"><div class="chart-fill" style="height:35%"></div><div class="chart-label">Jun</div></div>
+        <div class="chart-col"><div class="chart-fill" style="height:55%"></div><div class="chart-label">Jul</div></div>
+        <div class="chart-col"><div class="chart-fill" style="height:100%;background:linear-gradient(to top,var(--green-800),var(--green-500))"></div><div class="chart-label">Aug</div></div>
+        <div class="chart-col"><div class="chart-fill" style="height:20%;opacity:0.4"></div><div class="chart-label">Sep</div></div>
+        <div class="chart-col"><div class="chart-fill" style="height:15%;opacity:0.3"></div><div class="chart-label">Oct</div></div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="section-label">EXPENSE BREAKDOWN</div>
+    <div class="card" style="padding:12px 14px">
+      <div class="expense-item"><div class="expense-dot" style="background:var(--green-600)"></div><div class="expense-name">Fertilizer</div><div class="expense-pct">29%</div><div class="expense-amount">₹14,000</div></div>
+      <div class="expense-item"><div class="expense-dot" style="background:var(--char-500)"></div><div class="expense-name">Labour</div><div class="expense-pct">21%</div><div class="expense-amount">₹10,000</div></div>
+      <div class="expense-item"><div class="expense-dot" style="background:var(--amber)"></div><div class="expense-name">Seeds</div><div class="expense-pct">16%</div><div class="expense-amount">₹8,000</div></div>
+      <div class="expense-item"><div class="expense-dot" style="background:var(--red)"></div><div class="expense-name">Veterinary</div><div class="expense-pct">9%</div><div class="expense-amount">₹4,500</div></div>
+      <div class="expense-item"><div class="expense-dot" style="background:#2196F3"></div><div class="expense-name">Irrigation</div><div class="expense-pct">6%</div><div class="expense-amount">₹3,000</div></div>
+      <div class="expense-item" style="border-bottom:none"><div class="expense-dot" style="background:var(--char-200)"></div><div class="expense-name">Others</div><div class="expense-pct">19%</div><div class="expense-amount">₹9,000</div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 26: NOTIFICATIONS
+     ============================================================ -->
+<div id="screen-notifications" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="topbar-title">Notifications</div>
+    <button class="btn btn-ghost" style="font-size:12px;color:var(--green-700)">Mark all read</button>
+  </div>
+  <div class="scroll-area" style="padding:16px 20px">
+    <div class="section-label">URGENT</div>
+    <div class="notif-item notif-urgent" onclick="goTo('screen-livestock-advisory')">
+      <div class="notif-icon" style="background:var(--red-light)">🚨</div>
+      <div style="flex:1">
+        <div class="notif-title">Vaccination Overdue — Kali (Buffalo)</div>
+        <div class="notif-desc">FMD Vaccine is overdue. Immediate vaccination required.</div>
+        <div class="notif-time">Just now · Tap to act</div>
+      </div>
+    </div>
+
+    <div class="section-label mt8">ACTION REQUIRED</div>
+    <div class="notif-item notif-action" onclick="goTo('screen-weather')">
+      <div class="notif-icon" style="background:#FEF3E2">🌧️</div>
+      <div style="flex:1">
+        <div class="notif-title">Rain expected tomorrow</div>
+        <div class="notif-desc">Postpone fertilizer spraying. Update your irrigation plan.</div>
+        <div class="notif-time">2 hours ago</div>
+      </div>
+    </div>
+    <div class="notif-item notif-action" onclick="goTo('screen-field-detail')">
+      <div class="notif-icon" style="background:var(--green-50)">🌱</div>
+      <div style="flex:1">
+        <div class="notif-title">Fertilizer due in 2 days</div>
+        <div class="notif-desc">Wheat – Field A requires Urea application at tillering.</div>
+        <div class="notif-time">6 hours ago</div>
+      </div>
+    </div>
+
+    <div class="section-label mt8">UPCOMING</div>
+    <div class="notif-item notif-info" onclick="goTo('screen-vaccination')">
+      <div class="notif-icon" style="background:#E3F2FD">💉</div>
+      <div style="flex:1">
+        <div class="notif-title">Anthrax Vaccine due in 4 days</div>
+        <div class="notif-desc">Rani (Goat) — Schedule your appointment.</div>
+        <div class="notif-time">Yesterday</div>
+      </div>
+    </div>
+
+    <div class="section-label mt8">INFORMATION</div>
+    <div class="notif-item notif-info">
+      <div class="notif-icon" style="background:var(--green-50)">🌾</div>
+      <div style="flex:1">
+        <div class="notif-title">Wheat entering flowering phase</div>
+        <div class="notif-desc">Field A – Ensure adequate irrigation during this critical window.</div>
+        <div class="notif-time">2 days ago</div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 27: MORE / PROFILE
+     ============================================================ -->
+<div id="screen-more" class="screen">
+  <div class="profile-header">
+    <div class="profile-avatar">RK</div>
+    <div>
+      <div class="profile-name">Ramesh Kumar</div>
+      <div class="profile-meta">📍 Ludhiana, Punjab · 5.0 Acre</div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div style="height:8px;background:var(--cream)"></div>
+    <div class="menu-item" onclick="goTo('screen-setup-farmer')"><div class="menu-icon" style="background:var(--green-50)">👤</div><div class="menu-label">Farm Profile</div><div class="menu-right">›</div></div>
+    <div class="menu-item" onclick="goTo('screen-setup-fields')"><div class="menu-icon" style="background:var(--green-50)">🌾</div><div class="menu-label">My Fields</div><div class="menu-right">›</div></div>
+    <div class="menu-item" onclick="goTo('screen-livestock')"><div class="menu-icon" style="background:var(--green-50)">🐄</div><div class="menu-label">My Animals</div><div class="menu-right">›</div></div>
+    <div class="menu-item" onclick="goTo('screen-crop-advisory')"><div class="menu-icon" style="background:#FEF3E2">📋</div><div class="menu-label">Saved Advisories</div><div class="menu-right">›</div></div>
+    <div class="menu-item" onclick="goTo('screen-expenses')"><div class="menu-icon" style="background:#FEF3E2">💰</div><div class="menu-label">Expense Tracker</div><div class="menu-right">›</div></div>
+    <div class="menu-item" onclick="goTo('screen-farm-history')"><div class="menu-icon" style="background:var(--green-50)">📊</div><div class="menu-label">Reports</div><div class="menu-right">›</div></div>
+    <div style="height:8px;background:var(--cream)"></div>
+    <div class="menu-item"><div class="menu-icon" style="background:var(--char-100)">🌐</div><div class="menu-label">Language</div><div class="menu-right" style="font-size:13px;color:var(--char-700)">English ›</div></div>
+    <div class="menu-item"><div class="menu-icon" style="background:var(--char-100)">⚙️</div><div class="menu-label">Settings</div><div class="menu-right">›</div></div>
+    <div class="menu-item"><div class="menu-icon" style="background:var(--char-100)">❓</div><div class="menu-label">Help &amp; Support</div><div class="menu-right">›</div></div>
+    <div class="menu-item"><div class="menu-icon" style="background:var(--char-100)">ℹ️</div><div class="menu-label">About AgriTech</div><div class="menu-right">›</div></div>
+    <div style="height:8px;background:var(--cream)"></div>
+
+    <!-- Future AI modules (locked) -->
+    <div style="padding:16px 20px">
+      <div class="section-label">COMING SOON</div>
+      <div class="card" style="padding:12px 14px;opacity:.6">
+        <div class="flex fai g12 mb8"><span style="font-size:20px">📈</span><div><div class="bold text-sm">Yield Prediction</div><div class="text-xs text-muted">AI-powered harvest forecast</div></div><span class="badge badge-gray">Soon</span></div>
+        <div class="divider"></div>
+        <div class="flex fai g12 mt8"><span style="font-size:20px">🐛</span><div><div class="bold text-sm">Pest Detection</div><div class="text-xs text-muted">Image-based pest identification</div></div><span class="badge badge-gray">Soon</span></div>
+      </div>
+    </div>
+    <div style="padding:0 20px 8px">
+      <button class="btn btn-outline btn-full" style="color:var(--red);border-color:var(--red);opacity:.8" onclick="goTo('screen-splash')">Logout</button>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="setTab('screen-home',this)"><div class="nav-icon">🏡</div>Home</div>
+    <div class="nav-item" onclick="setTab('screen-field-detail',this)"><div class="nav-icon">🌾</div>Crops</div>
+    <div class="nav-item center-btn" onclick="goTo('screen-scanner')"><div class="nav-center-circle">🔬</div></div>
+    <div class="nav-item" onclick="setTab('screen-livestock',this)"><div class="nav-icon">🐄</div>Livestock</div>
+    <div class="nav-item active" onclick="setTab('screen-more',this)"><div class="nav-icon">☰</div>More</div>
+  </div>
+</div>
+
+</div><!-- #phone -->
+</div><!-- #app -->
+
+<script>
+// ============================================================
+// NAVIGATION & ROUTER
+// ============================================================
+let history = ['screen-splash'];
+let _prevScreen = null;
+
+function goTo(id) {
+  const cur = document.querySelector('.screen.active');
+  if (cur && cur.id === id) return;
+  if (cur) {
+    cur.classList.remove('active');
+    cur.classList.add('slide-left');
+    setTimeout(() => cur.classList.remove('slide-left'), 300);
+  }
+  const next = document.getElementById(id);
+  if (next) {
+    next.classList.add('active');
+    if (!history.includes(id)) history.push(id);
+    else history = history.slice(0, history.lastIndexOf(id) + 1);
+  }
+}
+
+function goBack() {
+  if (history.length <= 1) return;
+  const cur = document.querySelector('.screen.active');
+  if (cur) cur.classList.remove('active');
+  history.pop();
+  const prev = history[history.length - 1] || 'screen-home';
+  const el = document.getElementById(prev);
+  if (el) el.classList.add('active');
+}
+
+function setTab(id, el) {
+  // Update nav items in the current bottom nav
+  const nav = el.closest('.bottom-nav');
+  if (nav) nav.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  goTo(id);
+}
+
+// ============================================================
+// SPLASH AUTO-ADVANCE
+// ============================================================
+setTimeout(() => goTo('screen-onboard1'), 2500);
+
+// ============================================================
+// SYMPTOM CHIP TOGGLE
+// ============================================================
+function toggleSymptom(el) {
+  el.classList.toggle('selected');
+  const chk = el.querySelector('.symptom-check');
+  if (el.classList.contains('selected')) chk.textContent = '✓';
+  else chk.textContent = '';
+}
+
+// ============================================================
+// VACCINATION TABS
+// ============================================================
+function switchVaccTab(tabEl, filter) {
+  tabEl.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  // Simple filter demo
+  const items = document.querySelectorAll('#vacc-all .vacc-item');
+  items.forEach(item => {
+    if (filter === 'all') item.style.display = 'flex';
+    else if (filter === 'due') item.style.display = item.classList.contains('vacc-overdue') || item.classList.contains('vacc-due-soon') ? 'flex' : 'none';
+    else item.style.display = item.classList.contains('vacc-done') ? 'flex' : 'none';
+  });
+}
+
+// ============================================================
+// POPULATE ALL CROP SCORES TABLE
+// ============================================================
+const crops = [
+  ['🥔','Potato',96,'Excellent'],['🍓','Strawberry',90,'Excellent'],['🫛','Peas',86,'Good'],
+  ['🌽','Corn',72,'Good'],['🍅','Tomato',68,'Good'],['🫑','Bell Pepper',60,'Fair'],
+  ['🍇','Grape',55,'Fair'],['🍊','Orange',50,'Fair'],['🍎','Apple',44,'Fair'],
+  ['🍑','Peach',40,'Fair'],['🍒','Cherry',36,'Poor'],['🫐','Blueberry',24,'Poor'],
+  ['🥝','Squash',30,'Poor'],['🍇','Raspberry',22,'Poor'],
+];
+const scoreList = document.getElementById('all-crop-scores');
+if (scoreList) {
+  crops.forEach(([icon,name,score,grade],i) => {
+    const gradeColor = grade==='Excellent'?'var(--green-600)':grade==='Good'?'var(--green-400)':grade==='Fair'?'var(--amber)':'var(--red)';
+    scoreList.innerHTML += `
+      <div class="flex fai g8" style="padding:8px 0;border-bottom:1px solid var(--char-100)${i===crops.length-1?';border:none':''}">
+        <span style="font-size:20px;width:28px">${icon}</span>
+        <span style="flex:1;font-size:14px;font-weight:500;color:var(--char-900)">${name}</span>
+        <span style="font-size:12px;color:${gradeColor};font-weight:600;min-width:56px;text-align:right">${score}/100</span>
+      </div>`;
+  });
+}
+</script>
+</body>
+</html>

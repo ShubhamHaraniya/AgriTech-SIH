@@ -1,0 +1,9 @@
+{
+  "appId": "com.agritech.sih",
+  "appName": "AgriTech",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}
